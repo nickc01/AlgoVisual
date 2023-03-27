@@ -3,6 +3,11 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+#C++ Artifacts
+build/
+out/
+.vs/
+
 # Node artifact files
 node_modules/
 dist/
