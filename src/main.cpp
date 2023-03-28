@@ -1,21 +1,34 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <functional>
+#include <AlgoVisual/event.h>
+#include <AlgoVisual/Graphics/Button.h>
 
 #include <AlgoVisual/test.h>
 #include <raylib.h>
 #include <AlgoVisual/DataStructures/linked_list.h>
-#include <imgui.h>
-#include <rlImGui.h>
+#include <AlgoVisual/render_list.h>
+#include <AlgoVisual/update_list.h>
 
 using namespace std;
 
-int main() 
+int main()
 {
-	linked_list<int> test = {1,2,3,4,5,6,7,8,9,10};
+	linked_list<int> test = { 1,2,3,4,5,6,7,8,9,10 };
 
 	test.removeBegin();
 	test.removeEnd();
+
+	auto iter = test.front();
+
+	for (int i = 0; i < 5; i++)
+	{
+		iter++;
+	}
+
+	test.insert(12345, iter);
+	test.remove(iter);
 
 	std::cout << test << std::endl;
 
@@ -25,10 +38,20 @@ int main()
 
 	SetTargetFPS(60);
 
-	rlImGuiSetup(true);
+	Button button{ 400, 300, "This is a test" };
+
+	render_list renderables;
+	update_list updatables;
+
+	renderables.add(button);
+	updatables.add(button);
 
 	while (!WindowShouldClose())
 	{
+		auto dt = GetFrameTime();
+
+		updatables.update(dt);
+
 		BeginDrawing();
 
 		ClearBackground(RAYWHITE);
@@ -47,24 +70,12 @@ int main()
 		auto windowWidth = GetScreenWidth();
 
 
-
+		renderables.render();
 
 		DrawText(listText.c_str(), (windowWidth / 2) - (size / 2), (windowHeight / 2) - (font_size / 2), font_size, RED);
 
-		// start ImGui Conent
-		rlImGuiBegin();
-
-		// show ImGui Content
-		bool open = true;
-		ImGui::ShowDemoWindow(&open);
-
-		// end ImGui Content
-		rlImGuiEnd();
-
 		EndDrawing();
 	}
-
-	rlImGuiShutdown();
 
 	CloseWindow();
 }
