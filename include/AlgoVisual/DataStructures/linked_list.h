@@ -4,188 +4,185 @@
 #include <ostream>
 
 template<typename T>
-struct node {
-	T value;
-	node<T>* next;
-	node<T>* prev;
-
-	node(const T& val, node<T>* nextPtr, node<T>* prevPtr) :
-		value(val),
-		next(nextPtr),
-		prev(prevPtr) {}
-
-	node(T&& val, node<T>* nextPtr, node<T>* prevPtr) :
-		value(std::move(val)),
-		next(nextPtr),
-		prev(prevPtr) {}
-
-	node() = default;
-};
-
-template<typename T>
-class linked_list;
-
-template<typename T, bool is_const = false>
-class node_iterator {
-	template<typename inputType>
-	using make_const_if_true = typename std::conditional<is_const, const inputType, inputType>::type;
-
-	using node_type = make_const_if_true<node<T>>;
-	using list_type = make_const_if_true<linked_list<T>>;
-
-	node_type* _node;
-	list_type* _list;
-
-public:
-	using value_type = make_const_if_true<T>;
-	using reference = value_type&;
-	using pointer = value_type*;
-	using iterator_category = std::bidirectional_iterator_tag;
-	using difference_type = int;
-
-	node_iterator(node_type* node, list_type* list) : _node(node), _list(list) {}
-
-	//Pre-increments the iterator to the next value
-	node_iterator<T, is_const>& operator++()
-	{
-		//If we are at the end of the list
-		if (_node == nullptr)
-		{
-			//We can't iterate past it
-			throw std::exception("Attempting to iterate past the end of the list");
-		}
-
-		//Move to the next node
-		_node = _node->next;
-		//Return the iterator
-		return *this;
-	}
-	//Post-increments the iterator to the next value
-	node_iterator<T, is_const> operator++(int)
-	{
-		//If we are at the end of the list
-		if (_node == nullptr)
-		{
-			//We can't iterate past it
-			throw std::exception("Attempting to iterate past the end of the list");
-		}
-		//Store the current state of the iterator
-		node_iterator<T, is_const> previousState = *this;
-		//Move to the next node
-		_node = _node->next;
-		//Return the previous state of the iterator
-		return previousState;
-	}
-
-	//Pre-decrements the iterator to the previous value
-	node_iterator<T, is_const>& operator--()
-	{
-		//If the node is nullptr, then the iterator refers to the element past the end of the list
-		if (_node == nullptr)
-		{
-			//Set this iterator to the last VALID iterator in the list
-			//*this = --_list->end();
-			*this = _list->back();
-
-			//If the last element is null, then the list is empty
-			if (_node == nullptr)
-			{
-				throw std::exception("Attempting to iterate over an empty linked list");
-			}
-		}
-		//If we are somewhere in the middle of the list
-		else
-		{
-			//If there is a previous element
-			if (_node->prev != nullptr)
-			{
-				//Set the node to the previous element
-				_node = _node->prev;
-			}
-			//If there is no previous element, then we are at the beginning already
-			else
-			{
-				throw std::exception("Attempting to iterate past the beginning of the list");
-			}
-		}
-		//Return a reference to the iterator
-		return *this;
-	}
-	//Post-decrements the iterator to the previous value
-	node_iterator<T, is_const> operator--(int)
-	{
-		//Store the current state of the iterator
-		node_iterator<T, is_const> previousState = *this;
-		//If the node is nullptr, then we are at the end of the list
-		if (_node == nullptr)
-		{
-			//Set this iterator to the last VALID iterator in the list
-			*this = _list->back();
-			//If the last element is null, then the list is empty
-			if (_node == nullptr)
-			{
-				throw std::exception("Attempting to iterate over an empty linked list");
-			}
-		}
-		//If we are somewhere in the middle of the list
-		else
-		{
-			//If there is a previous element
-			if (_node->prev != nullptr)
-			{
-				//Set the node to the previous element
-				_node = _node->prev;
-			}
-			//If there is no previous element, then we are at the beginning already
-			else
-			{
-				throw std::exception("Attempting to iterate past the beginning of the list");
-			}
-		}
-		//Return the previous state of the iterator
-		return previousState;
-	}
-
-	//Used to get the value of the iterator
-	reference operator*()
-	{
-		//Return a reference to the value
-		return _node->value;
-	}
-	//Used for dereferencing the value
-	pointer operator->()
-	{
-		//Return a pointer to the value
-		return &_node->value;
-	}
-
-	node_type* get_node() const {
-		return _node;
-	}
-
-	//Tests for equality
-	bool operator==(const node_iterator<T,is_const>& rhs) const
-	{
-		return rhs._node == _node && rhs._list == _list;
-	}
-	//Tests for inequality
-	bool operator!=(const node_iterator<T, is_const>& rhs) const
-	{
-		return rhs._node != _node || rhs._list != _list;
-	}
-};
-
-template<typename T>
-using const_node_iterator = node_iterator<T, true>;
-
-template<typename T>
 class linked_list {
-	node<T>* first = nullptr;
-	node<T>* last = nullptr;
+public:
+	struct node {
+		T value;
+		node* next;
+		node* prev;
+
+		node(const T& val, node* nextPtr, node* prevPtr) :
+			value(val),
+			next(nextPtr),
+			prev(prevPtr) {}
+
+		node(T&& val, node* nextPtr, node* prevPtr) :
+			value(std::move(val)),
+			next(nextPtr),
+			prev(prevPtr) {}
+
+		node() = default;
+	};
+
+	template<bool is_const>
+	class node_iterator_base {
+		template<typename inputType>
+		using make_const_if_true = typename std::conditional<is_const, const inputType, inputType>::type;
+
+		using node_type = make_const_if_true<node>;
+		using list_type = make_const_if_true<linked_list<T>>;
+
+		node_type* _node;
+		list_type* _list;
+
+	public:
+		using value_type = make_const_if_true<T>;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using iterator_category = std::bidirectional_iterator_tag;
+		using difference_type = int;
+
+		node_iterator_base(node_type* node, list_type* list) : _node(node), _list(list) {}
+
+		//Pre-increments the iterator to the next value
+		node_iterator_base<is_const>& operator++()
+		{
+			//If we are at the end of the list
+			if (_node == nullptr)
+			{
+				//We can't iterate past it
+				throw std::exception("Attempting to iterate past the end of the list");
+			}
+
+			//Move to the next node
+			_node = _node->next;
+			//Return the iterator
+			return *this;
+		}
+		//Post-increments the iterator to the next value
+		node_iterator_base<is_const> operator++(int)
+		{
+			//If we are at the end of the list
+			if (_node == nullptr)
+			{
+				//We can't iterate past it
+				throw std::exception("Attempting to iterate past the end of the list");
+			}
+			//Store the current state of the iterator
+			node_iterator_base<is_const> previousState = *this;
+			//Move to the next node
+			_node = _node->next;
+			//Return the previous state of the iterator
+			return previousState;
+		}
+
+		//Pre-decrements the iterator to the previous value
+		node_iterator_base<is_const>& operator--()
+		{
+			//If the node is nullptr, then the iterator refers to the element past the end of the list
+			if (_node == nullptr)
+			{
+				//Set this iterator to the last VALID node in the list
+				_node = _list->last;
+
+				//If the last element is null, then the list is empty
+				if (_node == nullptr)
+				{
+					throw std::exception("Attempting to iterate over an empty linked list");
+				}
+			}
+			//If we are somewhere in the middle of the list
+			else
+			{
+				//If there is a previous element
+				if (_node->prev != nullptr)
+				{
+					//Set the node to the previous element
+					_node = _node->prev;
+				}
+				//If there is no previous element, then we are at the beginning already
+				else
+				{
+					throw std::exception("Attempting to iterate past the beginning of the list");
+				}
+			}
+			//Return a reference to the iterator
+			return *this;
+		}
+		//Post-decrements the iterator to the previous value
+		node_iterator_base<is_const> operator--(int)
+		{
+			//Store the current state of the iterator
+			node_iterator_base<is_const> previousState = *this;
+			//If the node is nullptr, then we are at the end of the list
+			if (_node == nullptr)
+			{
+				//Set this iterator to the last VALID node in the list
+				_node = _list->last;
+				//If the last element is null, then the list is empty
+				if (_node == nullptr)
+				{
+					throw std::exception("Attempting to iterate over an empty linked list");
+				}
+			}
+			//If we are somewhere in the middle of the list
+			else
+			{
+				//If there is a previous element
+				if (_node->prev != nullptr)
+				{
+					//Set the node to the previous element
+					_node = _node->prev;
+				}
+				//If there is no previous element, then we are at the beginning already
+				else
+				{
+					throw std::exception("Attempting to iterate past the beginning of the list");
+				}
+			}
+			//Return the previous state of the iterator
+			return previousState;
+		}
+
+		//Used to get the value of the iterator
+		reference operator*()
+		{
+			//Return a reference to the value
+			return _node->value;
+		}
+		//Used for dereferencing the value
+		pointer operator->()
+		{
+			//Return a pointer to the value
+			return &_node->value;
+		}
+
+		node_type* get_node() const {
+			return _node;
+		}
+
+		//Tests for equality
+		bool operator==(const node_iterator_base<is_const>& rhs) const
+		{
+			return rhs._node == _node && rhs._list == _list;
+		}
+		//Tests for inequality
+		bool operator!=(const node_iterator_base<is_const>& rhs) const
+		{
+			return rhs._node != _node || rhs._list != _list;
+		}
+	};
+
+	using const_node_iterator = node_iterator_base<true>;
+	using node_iterator = node_iterator_base<false>;
+
+private:
+	node* first = nullptr;
+	node* last = nullptr;
 	int size = 0;
 
 	//Inserts a new node. The node will be inserted before the "elementToInsertBefore" iterator
-	node_iterator<T> insert(node<T>* newNode, const node_iterator<T> elementToInsertBefore)
+	node_iterator insert(node* newNode, const node_iterator elementToInsertBefore)
 	{
 		//If the iterator is equal to the end() iterator
 		if (elementToInsertBefore.get_node() == nullptr)
@@ -239,7 +236,7 @@ class linked_list {
 			size++;
 		}
 		//return a new iterator that points to the new node
-		return node_iterator<T>(newNode, this);
+		return node_iterator(newNode, this);
 	}
 
 public:
@@ -280,10 +277,10 @@ public:
 
 	void clear()
 	{
-		node<T>* currentNode = first;
+		node* currentNode = first;
 		while (currentNode != nullptr)
 		{
-			node<T>* previousNode = currentNode;
+			node* previousNode = currentNode;
 			currentNode = currentNode->next;
 			delete previousNode;
 		}
@@ -292,53 +289,53 @@ public:
 		size = 0;
 	}
 
-	node_iterator<T> begin() {
-		return node_iterator<T>(first, this);
+	node_iterator begin() {
+		return node_iterator(first, this);
 	}
 
-	node_iterator<T> end(){
-		return node_iterator<T>(nullptr, this);
-	}
-
-
-	const_node_iterator<T> begin() const {
-		return const_node_iterator<T>(first, this);
-	}
-
-	const_node_iterator<T> end() const {
-		return const_node_iterator<T>(nullptr, this);
+	node_iterator end(){
+		return node_iterator(nullptr, this);
 	}
 
 
-	const_node_iterator<T> cbegin() const {
-		return const_node_iterator<T>(first, this);
+	const_node_iterator begin() const {
+		return const_node_iterator(first, this);
 	}
 
-	const_node_iterator<T> cend() const {
-		return const_node_iterator<T>(nullptr, this);
-	}
-
-
-	node_iterator<T> front() {
-		return node_iterator<T>(first, this);
-	}
-
-	const_node_iterator<T> front() const {
-		return const_node_iterator<T>(first, this);
+	const_node_iterator end() const {
+		return const_node_iterator(nullptr, this);
 	}
 
 
-	node_iterator<T> back() {
-		return node_iterator<T>(last, this);
+	const_node_iterator cbegin() const {
+		return const_node_iterator(first, this);
 	}
 
-	const_node_iterator<T> back() const {
-		return const_node_iterator<T>(last, this);
+	const_node_iterator cend() const {
+		return const_node_iterator(nullptr, this);
 	}
 
-	node_iterator<T> push_front(const T& value)
+
+	node_iterator front() {
+		return node_iterator(first, this);
+	}
+
+	const_node_iterator front() const {
+		return const_node_iterator(first, this);
+	}
+
+
+	node_iterator back() {
+		return node_iterator(last, this);
+	}
+
+	const_node_iterator back() const {
+		return const_node_iterator(last, this);
+	}
+
+	node_iterator push_front(const T& value)
 	{
-		node<T>* newNode = new node<T>(value, first, nullptr);
+		node* newNode = new node(value, first, nullptr);
 		if (first != nullptr)
 		{
 			first->prev = newNode;
@@ -351,12 +348,12 @@ public:
 
 		first = newNode;
 		++size;
-		return node_iterator<T>(first, this);
+		return node_iterator(first, this);
 	}
 
-	node_iterator<T> push_front(T&& value)
+	node_iterator push_front(T&& value)
 	{
-		node<T>* newNode = new node<T>(std::move(value), first, nullptr);
+		node* newNode = new node(std::move(value), first, nullptr);
 		if (first != nullptr)
 		{
 			first->prev = newNode;
@@ -369,12 +366,12 @@ public:
 
 		first = newNode;
 		++size;
-		return node_iterator<T>(first, this);
+		return node_iterator(first, this);
 	}
 
-	node_iterator<T> push_back(const T& value)
+	node_iterator push_back(const T& value)
 	{
-		node<T>* newNode = new node<T>(value, nullptr, last);
+		node* newNode = new node(value, nullptr, last);
 		if (last != nullptr)
 		{
 			last->next = newNode;
@@ -387,12 +384,12 @@ public:
 
 		last = newNode;
 		++size;
-		return node_iterator<T>(last, this);
+		return node_iterator(last, this);
 	}
 
-	node_iterator<T> push_back(T&& value)
+	node_iterator push_back(T&& value)
 	{
-		node<T>* newNode = new node<T>(std::move(value), nullptr, last);
+		node* newNode = new node(std::move(value), nullptr, last);
 		if (last != nullptr)
 		{
 			last->next = newNode;
@@ -405,15 +402,10 @@ public:
 
 		last = newNode;
 		++size;
-		return node_iterator<T>(last, this);
+		return node_iterator(last, this);
 	}
 
-	void remove(node_iterator<T> node)
-	{
-		
-	}
-
-	bool removeBegin()
+	bool pop_front()
 	{
 		if (first != nullptr)
 		{
@@ -443,7 +435,7 @@ public:
 		return false;
 	}
 
-	bool removeEnd()
+	bool pop_back()
 	{
 		if (last != nullptr)
 		{
@@ -478,15 +470,15 @@ public:
 	}
 
 	//Inserts a new element before the specified position. Returns an iterator to the new node
-	node_iterator<T> insert(const T& value, const node_iterator<T> elementToInsertBefore)
+	node_iterator insert(const T& value, const node_iterator elementToInsertBefore)
 	{
 		//The new node to insert
-		node<T>* newNode = nullptr;
+		node* newNode = nullptr;
 
 		try
 		{
 			//Allocate the node
-			newNode = new node<T>(value, nullptr, nullptr);
+			newNode = new node(value, nullptr, nullptr);
 			//Insert the node before the specified position
 			return insert(newNode, elementToInsertBefore);
 		}
@@ -505,15 +497,15 @@ public:
 	}
 
 	//Inserts a new element before the specified position by moving the value. Returns an iterator to the new node
-	node_iterator<T> insert(T&& value, const node_iterator<T> elementToInsertBefore)
+	node_iterator insert(T&& value, const node_iterator elementToInsertBefore)
 	{
 		//The new node to insert
-		node<T>* newNode = nullptr;
+		node* newNode = nullptr;
 
 		try
 		{
 			//Allocate the node
-			newNode = new node<T>(std::move(value), nullptr, nullptr);
+			newNode = new node(std::move(value), nullptr, nullptr);
 			//Insert the node before the specified position
 			return insert(newNode, elementToInsertBefore);
 		}
@@ -532,7 +524,7 @@ public:
 	}
 
 	//Deletes an element at the specified position
-	void delete_element(const node_iterator<T> elementToRemove)
+	void pop_element(const node_iterator elementToRemove)
 	{
 		//If the elementToRemove is the same as the end() iterator
 		if (elementToRemove.get_node() == nullptr)
@@ -541,7 +533,7 @@ public:
 			throw std::exception("The passed in iterator does not point to a valid element");
 		}
 		//Get the node of the element to remove
-		node<T>* node = elementToRemove.get_node();
+		node* node = elementToRemove.get_node();
 
 		//If the node is the first element
 		if (node == first)

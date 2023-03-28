@@ -13,7 +13,7 @@ set(IMGUI_WITH_IMPL OFF)
 add_executable(${PROJECT_NAME} 
 "src/main.cpp" 
 "include/AlgoVisual/test.h"   
-"include/AlgoVisual/DataStructures/linked_list_old.h" 
+ 
 "include/AlgoVisual/DataStructures/linked_list.h" 
 "include/AlgoVisual/Graphics/Button.h" 
 "src/Graphics/Button.cpp" 
@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}
 "include/AlgoVisual/misc.h" 
 "src/misc.cpp"
 "include/AlgoVisual/rlImGui.h"
-"src/rlImGui.cpp")
+"src/rlImGui.cpp" "include/AlgoVisual/DataStructures/binary_search_tree.h")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "include")
 
@@ -32,3 +32,13 @@ add_subdirectory(lib/raylib)
 add_subdirectory(lib/imgui)
 
 target_link_libraries(${PROJECT_NAME} raylib_static imgui)
+
+
+
+
+# TESTS
+# include(CTest)
+#add_subdirectory(lib/googletest)
+#add_executable(AlgoTests "tests/src/linked_list_tests.cpp")
+
+#target_link_libraries(AlgoTests PRIVATE GTest::GTest AlgoVisual)
