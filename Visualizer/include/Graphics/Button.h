@@ -1,5 +1,5 @@
 #pragma once
-#include <AlgoVisual/Event.h>
+#include <Event.h>
 #include <raylib.h>
 #include <string>
 

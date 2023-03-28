@@ -1,5 +1,5 @@
 #pragma once
-#include <AlgoVisual/Event.h>
+#include <Event.h>
 
 class render_list {
 	Event<void> renderables;

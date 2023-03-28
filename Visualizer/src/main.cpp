@@ -3,19 +3,22 @@
 #include <string>
 #include <functional>
 
-#include <AlgoVisual/test.h>
+#include <test.h>
 #include <raylib.h>
-#include <AlgoVisual/DataStructures/linked_list.h>
-#include <AlgoVisual/render_list.h>
-#include <AlgoVisual/update_list.h>
+#include <linked_list.h>
+#include <render_list.h>
+#include <update_list.h>
 #include <imgui.h>
-#include <AlgoVisual/rlImGui.h>
-#include <AlgoVisual/DataStructures/binary_search_tree.h>
+#include <rlImGui.h>
+#include <binary_search_tree.h>
+#include <graph.h>
 
 using namespace std;
 
 int main()
 {
+	graph<int> testGraph;
+
 	binary_search_tree<int> testTree;
 
 	linked_list<int> test = { 1,2,3,4,5,6,7,8,9,10 };

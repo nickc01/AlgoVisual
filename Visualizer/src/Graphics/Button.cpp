@@ -1,5 +1,5 @@
-#include <AlgoVisual/Graphics/Button.h>
-#include <AlgoVisual/misc.h>
+#include <Graphics/Button.h>
+#include <misc.h>
 
 Button::Button(float posX, float posY, std::string text, int fontSize, int padding, Color color) :
 	posX(posX),

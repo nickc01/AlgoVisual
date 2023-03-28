@@ -1,4 +1,4 @@
-#include <AlgoVisual/misc.h>
+#include <misc.h>
 
 bool PointWithinRect(const Rectangle& rect, int x, int y)
 {

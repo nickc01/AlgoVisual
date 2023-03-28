@@ -2,6 +2,7 @@
 #include <type_traits>
 #include <initializer_list>
 #include <ostream>
+#include <common_traits.h>
 
 template<typename T>
 class linked_list {
@@ -26,17 +27,15 @@ public:
 
 	template<bool is_const>
 	class node_iterator_base {
-		template<typename inputType>
-		using make_const_if_true = typename std::conditional<is_const, const inputType, inputType>::type;
 
-		using node_type = make_const_if_true<node>;
-		using list_type = make_const_if_true<linked_list<T>>;
+		using node_type = make_const_if_true<node, is_const>;
+		using list_type = make_const_if_true<linked_list<T>, is_const>;
 
 		node_type* _node;
 		list_type* _list;
 
 	public:
-		using value_type = make_const_if_true<T>;
+		using value_type = make_const_if_true<T, is_const>;
 		using reference = value_type&;
 		using pointer = value_type*;
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -257,7 +256,15 @@ public:
 		}
 	}
 
-	linked_list(linked_list<T>&& move) noexcept = default;
+	linked_list(linked_list<T>&& move) noexcept :
+		first(std::move(move.first)),
+		last(std::move(move.last)),
+		size(std::move(move.size))
+	{
+		move.first = nullptr;
+		move.last = nullptr;
+		move.size = 0;
+	}
 
 	linked_list<T>& operator=(const linked_list<T>& copy)
 	{
@@ -411,7 +418,7 @@ public:
 		{
 			if (last == first)
 			{
-				last == nullptr;
+				last = nullptr;
 			}
 
 			if (first->next != nullptr)
@@ -441,7 +448,7 @@ public:
 		{
 			if (first == last)
 			{
-				first == nullptr;
+				first = nullptr;
 			}
 
 			if (last->prev != nullptr)
@@ -566,7 +573,144 @@ public:
 		//Delete the current node
 		delete node;
 	}
+
+	const_node_iterator find(const T& value) const 
+	{
+		for (auto i = begin(); i != end(); i++)
+		{
+			if (*i == value)
+			{
+				return i;
+			}
+		}
+	}
+
+	const_node_iterator find(T&& value) const
+	{
+		for (auto i = begin(); i != end(); i++)
+		{
+			if (*i == value)
+			{
+				return i;
+			}
+		}
+	}
+
+	node_iterator find(const T& value)
+	{
+		for (auto i = begin(); i != end(); i++)
+		{
+			if (*i == value)
+			{
+				return i;
+			}
+		}
+	}
+
+	node_iterator find(T&& value)
+	{
+		for (auto i = begin(); i != end(); i++)
+		{
+			if (*i == value)
+			{
+				return i;
+			}
+		}
+	}
 };
+
+
+//Gets the maximum value in the list. Returns end() if the list is empty
+template<typename T>
+typename linked_list<T>::const_node_iterator maximum(const linked_list<T>& list)
+{
+	//The max element stores the largest value. If the list is empty, it defaults to the end iterator
+	auto maxElement = list.end();
+	const auto endElement = list.end();
+
+	//Loop over all the nodes in the list
+	for (auto i = list.begin(); i != list.end(); i++)
+	{
+		//If the maxElement is the end() or a larger value has been found
+		if (maxElement == endElement || *i > *maxElement)
+		{
+			//Set the maxElement iterator to the current iterator
+			maxElement = i;
+		}
+	}
+
+	//Return the max element
+	return maxElement;
+}
+
+//Gets the minimum value in the list. Returns end() if the list is empty
+template<typename T>
+typename linked_list<T>::const_node_iterator minimum(const linked_list<T>& list)
+{
+	//The min element stores the smallest value. If the list is empty, it defaults to the end iterator
+	auto minElement = list.end();
+	const auto endElement = list.end();
+
+	//Loop over all the nodes in the list
+	for (auto i = list.begin(); i != list.end(); i++)
+	{
+		//If the minElement is the end() or a smaller value has been found
+		if (minElement == endElement || *i < *minElement)
+		{
+			//Set the minElement iterator to the current iterator
+			minElement = i;
+		}
+	}
+
+	//Return the min element
+	return minElement;
+}
+
+//Gets the maximum value in the list. Returns end() if the list is empty
+template<typename T>
+typename linked_list<T>::node_iterator maximum(linked_list<T>& list)
+{
+	//The max element stores the largest value. If the list is empty, it defaults to the end iterator
+	auto maxElement = list.end();
+	const auto endElement = list.end();
+
+	//Loop over all the nodes in the list
+	for (auto i = list.begin(); i != list.end(); i++)
+	{
+		//If the maxElement is the end() or a larger value has been found
+		if (maxElement == endElement || *i > *maxElement)
+		{
+			//Set the maxElement iterator to the current iterator
+			maxElement = i;
+		}
+	}
+
+	//Return the max element
+	return maxElement;
+}
+
+//Gets the minimum value in the list. Returns end() if the list is empty
+template<typename T>
+typename linked_list<T>::node_iterator minimum(linked_list<T>& list)
+{
+	//The min element stores the smallest value. If the list is empty, it defaults to the end iterator
+	auto minElement = list.end();
+	const auto endElement = list.end();
+
+	//Loop over all the nodes in the list
+	for (auto i = list.begin(); i != list.end(); i++)
+	{
+		//If the minElement is the end() or a smaller value has been found
+		if (minElement == endElement || *i < *minElement)
+		{
+			//Set the minElement iterator to the current iterator
+			minElement = i;
+		}
+	}
+
+	//Return the min element
+	return minElement;
+}
 
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const linked_list<T> list) {

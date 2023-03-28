@@ -1,5 +1,5 @@
 #pragma once
-#include <AlgoVisual/Event.h>
+#include <Event.h>
 
 class update_list {
 	Event<void,double> updatables;

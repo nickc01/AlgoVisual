@@ -28,7 +28,7 @@
 *
 **********************************************************************************************/
 //#include "rlImGui.h"
-#include <AlgoVisual/rlImGui.h>
+#include <rlImGui.h>
 
 #include <imgui.h>
 #include "raylib.h"

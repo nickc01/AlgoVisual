@@ -4,7 +4,7 @@
 #include <ostream>
 #include <algorithm>
 #include <type_traits>
-#include <AlgoVisual/misc.h>
+#include <common_traits.h>
 
 
 //An AVL Binary Search Tree that stores a list of items in the form a tree. It's AVL, meaning, it can automatically balance itself to provide the best performance possible
@@ -924,7 +924,7 @@ public:
     }
 
     //A move constructor for creating a new tree by moving the data from an old tree
-    binary_search_tree(binary_search_tree<T>&& toMove)
+    binary_search_tree(binary_search_tree<T>&& toMove) noexcept
     {
         //Move the root node
         root = toMove.root;
@@ -1190,7 +1190,7 @@ std::ostream& operator<<(std::ostream& stream, const binary_search_tree<T>& tree
     else
     {
         //Print the beginning bracket
-        stream << "[ ";
+        stream << "[";
         //Get the beginning of the tree
         auto beginning = tree.begin();
 
@@ -1205,7 +1205,7 @@ std::ostream& operator<<(std::ostream& stream, const binary_search_tree<T>& tree
         }
 
         //Print the last value of the tree along with a closing bracket
-        stream << *beginning << " ]";
+        stream << *beginning << "]";
     }
     //Return a reference to the stream
     return stream;
