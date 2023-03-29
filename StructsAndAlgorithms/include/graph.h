@@ -2,6 +2,7 @@
 
 #include <list>
 #include <ostream>
+#include <struct_exception.h>
 
 
 //Represents a weighted, directed graph. Nodes can be added to the graph, and they can be connected to each other
@@ -170,12 +171,12 @@ public:
 			//If there is already a connection to this neighbor, throw an exception
 			if (has_connection_to(neighbor))
 			{
-				throw std::exception("There is already a connection to the node");
+				throw struct_exception("There is already a connection to the node");
 			}
 			//if you are trying to make a connection to itself, throw an exception
 			if (neighbor == this)
 			{
-				throw std::exception("Cannot have a connection to itself");
+				throw struct_exception("Cannot have a connection to itself");
 			}
 			//Create a new connection
 			Connections.emplace_back(neighbor, this, connectionWeight);

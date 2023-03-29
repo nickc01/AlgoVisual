@@ -3,6 +3,7 @@
 #include <initializer_list>
 #include <ostream>
 #include <common_traits.h>
+#include <struct_exception.h>
 
 template<typename T>
 class linked_list {
@@ -50,7 +51,7 @@ public:
 			if (_node == nullptr)
 			{
 				//We can't iterate past it
-				throw std::exception("Attempting to iterate past the end of the list");
+				throw struct_exception("Attempting to iterate past the end of the list");
 			}
 
 			//Move to the next node
@@ -65,7 +66,7 @@ public:
 			if (_node == nullptr)
 			{
 				//We can't iterate past it
-				throw std::exception("Attempting to iterate past the end of the list");
+				throw struct_exception("Attempting to iterate past the end of the list");
 			}
 			//Store the current state of the iterator
 			node_iterator_base<is_const> previousState = *this;
@@ -87,7 +88,7 @@ public:
 				//If the last element is null, then the list is empty
 				if (_node == nullptr)
 				{
-					throw std::exception("Attempting to iterate over an empty linked list");
+					throw struct_exception("Attempting to iterate over an empty linked list");
 				}
 			}
 			//If we are somewhere in the middle of the list
@@ -102,7 +103,7 @@ public:
 				//If there is no previous element, then we are at the beginning already
 				else
 				{
-					throw std::exception("Attempting to iterate past the beginning of the list");
+					throw struct_exception("Attempting to iterate past the beginning of the list");
 				}
 			}
 			//Return a reference to the iterator
@@ -121,7 +122,7 @@ public:
 				//If the last element is null, then the list is empty
 				if (_node == nullptr)
 				{
-					throw std::exception("Attempting to iterate over an empty linked list");
+					throw struct_exception("Attempting to iterate over an empty linked list");
 				}
 			}
 			//If we are somewhere in the middle of the list
@@ -136,7 +137,7 @@ public:
 				//If there is no previous element, then we are at the beginning already
 				else
 				{
-					throw std::exception("Attempting to iterate past the beginning of the list");
+					throw struct_exception("Attempting to iterate past the beginning of the list");
 				}
 			}
 			//Return the previous state of the iterator
@@ -537,7 +538,7 @@ public:
 		if (elementToRemove.get_node() == nullptr)
 		{
 			//Cannot delete the end() iterator, since that doesn't have a valid value
-			throw std::exception("The passed in iterator does not point to a valid element");
+			throw struct_exception("The passed in iterator does not point to a valid element");
 		}
 		//Get the node of the element to remove
 		node* node = elementToRemove.get_node();
@@ -583,6 +584,7 @@ public:
 				return i;
 			}
 		}
+		return end();
 	}
 
 	const_node_iterator find(T&& value) const
@@ -594,6 +596,7 @@ public:
 				return i;
 			}
 		}
+		return end();
 	}
 
 	node_iterator find(const T& value)
@@ -605,6 +608,7 @@ public:
 				return i;
 			}
 		}
+		return end();
 	}
 
 	node_iterator find(T&& value)
@@ -616,6 +620,7 @@ public:
 				return i;
 			}
 		}
+		return end();
 	}
 };
 

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <type_traits>
 #include <common_traits.h>
+#include <struct_exception.h>
 
 
 //An AVL Binary Search Tree that stores a list of items in the form a tree. It's AVL, meaning, it can automatically balance itself to provide the best performance possible
@@ -683,7 +684,7 @@ class binary_search_tree
         using TreeType = make_const_if_true<binary_search_tree<T>, is_const>;
 
         //The node that the iterator points to. This will be "const node*" if "is_const" is true
-        NodeType* node;
+        NodeType* nodePtr;
 
         //Previous node that the iterator was previously. This will be "const node*" if "is_const" is true
         NodeType* previousNode = nullptr;
@@ -692,15 +693,15 @@ class binary_search_tree
         TreeType* tree;
 
         //Constructs a new iterator from a node and tree
-        iterator_base(NodeType* node, TreeType* tree) : node(node), tree(tree) { }
+        iterator_base(NodeType* node, TreeType* tree) : nodePtr(node), tree(tree) { }
 
     public:
         //An implicit copy constructor for implicity converting non-const iterators to const versions
-        iterator_base(const iterator_base<false>& other) : iterator_base(other.node, other.tree) {}
+        iterator_base(const iterator_base<false>& other) : iterator_base(other.nodePtr, other.tree) {}
         //An implicit move constructor for implicity converting non-const iterators to const versions
-        iterator_base(iterator_base<false>&& other) noexcept : iterator_base(other.node, other.tree)
+        iterator_base(iterator_base<false>&& other) noexcept : iterator_base(other.nodePtr, other.tree)
         {
-            other.node = nullptr;
+            other.nodePtr = nullptr;
             other.previousNode = nullptr;
             other.tree = nullptr;
         }
@@ -718,40 +719,40 @@ class binary_search_tree
         {
 
             //If the node is null, then we are already at the end
-            if (node == nullptr)
+            if (nodePtr == nullptr)
             {
-                throw std::exception("Cannot iterate past the end of the tree");
+                throw struct_exception("Cannot iterate past the end of the tree");
             }
 
             //If the node doesn't have a defined previous location. PreviousNode is null only when we first start iterating through the tree
             if (previousNode == nullptr)
             {
                 //If the node has a rightmost child, then move down to the lowest value in that subtree
-                if (node->rightChild != nullptr)
+                if (nodePtr->rightChild != nullptr)
                 {
-                    node = tree->minimum(node->rightChild);
+                    nodePtr = tree->minimum(nodePtr->rightChild);
                     previousNode = nullptr;
                 }
                 //Otherwise, if the node has a parent, then jump to that
-                else if (node->parent != nullptr)
+                else if (nodePtr->parent != nullptr)
                 {
-                    previousNode = node;
-                    node = node->parent;
+                    previousNode = nodePtr;
+                    nodePtr = nodePtr->parent;
                     //If we came from a right child, then keep going up until we reach a parent from the left side
-                    while (previousNode == node->rightChild)
+                    while (previousNode == nodePtr->rightChild)
                     {
                         //If the node does not have a parent, then we have reached the end
-                        if (node->parent == nullptr)
+                        if (nodePtr->parent == nullptr)
                         {
-                            node = nullptr;
+                            nodePtr = nullptr;
                             previousNode = nullptr;
                             break;
                         }
                         //If the node does have a parent, then keep going up the subtree
                         else
                         {
-                            previousNode = node;
-                            node = node->parent;
+                            previousNode = nodePtr;
+                            nodePtr = nodePtr->parent;
                         }
                     }
                 }
@@ -759,7 +760,7 @@ class binary_search_tree
                 else
                 {
                     //We have reached the end of the tree
-                    node = nullptr;
+                    nodePtr = nullptr;
                     previousNode = nullptr;
                 }
             }
@@ -767,44 +768,44 @@ class binary_search_tree
             else
             {
                 //If we came from a left child
-                if (previousNode == node->leftChild)
+                if (previousNode == nodePtr->leftChild)
                 {
                     //If the node we are on right now has a right child, then we can start traversing down it's subtree
-                    if (node->rightChild != nullptr)
+                    if (nodePtr->rightChild != nullptr)
                     {
                         //Find the lowest value in the subtree and start from there
-                        node = tree->minimum(node->rightChild);
+                        nodePtr = tree->minimum(nodePtr->rightChild);
                         previousNode = nullptr;
                     }
                     //If the node does not have a right child, then go up to it's parent
                     else
                     {
                         //If there is no parent, then we are at the end, since the only node that cannot have a parent is root
-                        if (node->parent == nullptr)
+                        if (nodePtr->parent == nullptr)
                         {
                             previousNode = nullptr;
-                            node = nullptr;
+                            nodePtr = nullptr;
                         }
                         //If there is a parent, then go to it
                         else
                         {
-                            previousNode = node;
-                            node = node->parent;
+                            previousNode = nodePtr;
+                            nodePtr = nodePtr->parent;
                             //If we came from a right child, then keep going up until we reach a parent from the left side
-                            while (previousNode == node->rightChild)
+                            while (previousNode == nodePtr->rightChild)
                             {
                                 //If the node does not have a parent, then we have reached the end
-                                if (node->parent == nullptr)
+                                if (nodePtr->parent == nullptr)
                                 {
-                                    node = nullptr;
+                                    nodePtr = nullptr;
                                     previousNode = nullptr;
                                     break;
                                 }
                                 //If the node does have a parent, then keep going up the subtree
                                 else
                                 {
-                                    previousNode = node;
-                                    node = node->parent;
+                                    previousNode = nodePtr;
+                                    nodePtr = nodePtr->parent;
                                 }
                             }
                         }
@@ -831,32 +832,32 @@ class binary_search_tree
         const T& operator*() const
         {
             //Return a reference to the value
-            return node->data;
+            return nodePtr->data;
         }
         //Used for dereferencing the value
         //This needs to be const because modifying the value in the tree would mess with the tree's structure
         const T* operator->() const
         {
             //Return a pointer to the value
-            return &node->data;
+            return &nodePtr->data;
         }
 
         //Tests for inequality
         bool operator!=(const iterator_base<is_const>& rhs) const
         {
-            return rhs.node != node || rhs.tree != tree;
+            return rhs.nodePtr != nodePtr || rhs.tree != tree;
         }
 
         //Tests for equality
         bool operator==(const iterator_base<is_const>& rhs) const
         {
-            return rhs.node == node && rhs.tree == tree;
+            return rhs.nodePtr == nodePtr && rhs.tree == tree;
         }
 
         //A copy assignment operator used for assigning a non-const iterator to a const version
         iterator_base<is_const>& operator=(const iterator_base<false>& other) noexcept
         {
-            node = other.node;
+            nodePtr = other.nodePtr;
             previousNode = other.previousNode;
             tree = other.tree;
             return *this;
@@ -865,11 +866,11 @@ class binary_search_tree
         //A move assignment operator used for assigning a non-const iterator to a const version
         iterator_base<is_const>& operator=(iterator_base<false>&& other) noexcept
         {
-            node = other.node;
+            nodePtr = other.nodePtr;
             previousNode = other.previousNode;
             tree = other.tree;
 
-            other.node = nullptr;
+            other.nodePtr = nullptr;
             other.previousNode = nullptr;
             other.tree = nullptr;
             return *this;
@@ -1008,7 +1009,7 @@ public:
     bool remove(iterator elementToDelete)
     {
         //Get the node that the iterator points to a delete it
-        return remove(elementToDelete.node);
+        return remove(elementToDelete.nodePtr);
     }
 
     //Attempts to find data in the tree and returns an iterator to that data. If the data could not be found, then the end() iterator is returned
@@ -1120,7 +1121,7 @@ public:
                 //Loop over all the nodes in the tree and configure their height values. The heights need to be configured property in order for the balancing to work
                 for (auto i = begin(); i != end(); i++)
                 {
-                    UpdateHeights(i.node);
+                    UpdateHeights(i.nodePtr);
                 }
             }
         }

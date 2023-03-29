@@ -10,9 +10,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/${CMAKE_BUILD_
 
 set(IMGUI_WITH_IMPL OFF)
 
+
 add_library(StructsAndAlgorithms 
 "StructsAndAlgorithms/include/binary_search_tree.h"
-"StructsAndAlgorithms/include/linked_list.h" "StructsAndAlgorithms/include/common_traits.h" "StructsAndAlgorithms/src/common_traits.cpp" "StructsAndAlgorithms/include/graph.h")
+"StructsAndAlgorithms/include/linked_list.h" 
+"StructsAndAlgorithms/include/common_traits.h" 
+"StructsAndAlgorithms/src/common_traits.cpp" 
+"StructsAndAlgorithms/include/graph.h"
+"StructsAndAlgorithms/include/struct_exception.h"
+"StructsAndAlgorithms/src/struct_exception.cpp")
 
 target_include_directories(StructsAndAlgorithms PUBLIC "StructsAndAlgorithms/include")
 set_target_properties(StructsAndAlgorithms PROPERTIES LINKER_LANGUAGE CXX)
@@ -49,7 +55,8 @@ add_library(GTEST::GTEST INTERFACE IMPORTED)
 target_link_libraries(GTEST::GTEST INTERFACE gtest_main)
 
 add_executable(AlgoTests 
-"Tests/src/linked_list_tests.cpp"
-"tests/src/binary_search_tree_tests.cpp" "tests/src/graph_tests.cpp")
+"test/src/linked_list_tests.cpp"
+"test/src/binary_search_tree_tests.cpp" 
+"test/src/graph_tests.cpp")
 
 target_link_libraries(AlgoTests PRIVATE GTEST::GTEST StructsAndAlgorithms)
