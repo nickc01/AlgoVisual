@@ -18,6 +18,7 @@ using namespace std;
 
 constexpr const char* WINDOW_TITLE = "Algorithm Tester";
 
+//TEST
 
 std::vector<std::string> optionNames;
 std::unique_ptr<const char* []> optionNamesCStr;
