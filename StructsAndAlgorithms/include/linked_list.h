@@ -2,8 +2,9 @@
 #include <type_traits>
 #include <initializer_list>
 #include <ostream>
-#include <common_traits.h>
+#include <common.h>
 #include <struct_exception.h>
+#include <functional>
 
 template<typename T>
 class linked_list {
@@ -622,12 +623,39 @@ public:
 		}
 		return end();
 	}
+
+	//Tests for equality
+	bool operator==(const linked_list<T>& rhs) const
+	{
+		if (size != rhs.size)
+		{
+			return false;
+		}
+
+		auto otherI = rhs.begin();
+
+		for (auto i = begin(); i != end(); i++)
+		{
+			if (*i != *otherI)
+			{
+				return false;
+			}
+			++otherI;
+		}
+
+		return true;
+	}
+	//Tests for inequality
+	bool operator!=(const linked_list<T>& rhs) const
+	{
+		return !(*this == rhs);
+	}
 };
 
 
 //Gets the maximum value in the list. Returns end() if the list is empty
-template<typename T>
-typename linked_list<T>::const_node_iterator maximum(const linked_list<T>& list)
+template<typename T, typename Comparer = decltype(sorting_impl::DefaultComparer<T>)>
+typename linked_list<T>::const_node_iterator maximum(const linked_list<T>& list, Comparer& comparer = sorting_impl::DefaultComparer<T>)
 {
 	//The max element stores the largest value. If the list is empty, it defaults to the end iterator
 	auto maxElement = list.end();
@@ -637,7 +665,7 @@ typename linked_list<T>::const_node_iterator maximum(const linked_list<T>& list)
 	for (auto i = list.begin(); i != list.end(); i++)
 	{
 		//If the maxElement is the end() or a larger value has been found
-		if (maxElement == endElement || *i > *maxElement)
+		if (maxElement == endElement || comparer(*maxElement, *i))
 		{
 			//Set the maxElement iterator to the current iterator
 			maxElement = i;
@@ -649,8 +677,8 @@ typename linked_list<T>::const_node_iterator maximum(const linked_list<T>& list)
 }
 
 //Gets the minimum value in the list. Returns end() if the list is empty
-template<typename T>
-typename linked_list<T>::const_node_iterator minimum(const linked_list<T>& list)
+template<typename T, typename Comparer = decltype(sorting_impl::DefaultComparer<T>)>
+typename linked_list<T>::const_node_iterator minimum(const linked_list<T>& list, Comparer& comparer = sorting_impl::DefaultComparer<T>)
 {
 	//The min element stores the smallest value. If the list is empty, it defaults to the end iterator
 	auto minElement = list.end();
@@ -660,7 +688,7 @@ typename linked_list<T>::const_node_iterator minimum(const linked_list<T>& list)
 	for (auto i = list.begin(); i != list.end(); i++)
 	{
 		//If the minElement is the end() or a smaller value has been found
-		if (minElement == endElement || *i < *minElement)
+		if (minElement == endElement || comparer(*i, *minElement))
 		{
 			//Set the minElement iterator to the current iterator
 			minElement = i;
@@ -672,8 +700,8 @@ typename linked_list<T>::const_node_iterator minimum(const linked_list<T>& list)
 }
 
 //Gets the maximum value in the list. Returns end() if the list is empty
-template<typename T>
-typename linked_list<T>::node_iterator maximum(linked_list<T>& list)
+template<typename T, typename Comparer = decltype(sorting_impl::DefaultComparer<T>)>
+typename linked_list<T>::node_iterator maximum(linked_list<T>& list, Comparer& comparer = sorting_impl::DefaultComparer<T>)
 {
 	//The max element stores the largest value. If the list is empty, it defaults to the end iterator
 	auto maxElement = list.end();
@@ -683,7 +711,7 @@ typename linked_list<T>::node_iterator maximum(linked_list<T>& list)
 	for (auto i = list.begin(); i != list.end(); i++)
 	{
 		//If the maxElement is the end() or a larger value has been found
-		if (maxElement == endElement || *i > *maxElement)
+		if (maxElement == endElement || comparer(*maxElement , *i))
 		{
 			//Set the maxElement iterator to the current iterator
 			maxElement = i;
@@ -695,8 +723,8 @@ typename linked_list<T>::node_iterator maximum(linked_list<T>& list)
 }
 
 //Gets the minimum value in the list. Returns end() if the list is empty
-template<typename T>
-typename linked_list<T>::node_iterator minimum(linked_list<T>& list)
+template<typename T, typename Comparer = decltype(sorting_impl::DefaultComparer<T>)>
+typename linked_list<T>::node_iterator minimum(linked_list<T>& list, Comparer& comparer = sorting_impl::DefaultComparer<T>)
 {
 	//The min element stores the smallest value. If the list is empty, it defaults to the end iterator
 	auto minElement = list.end();
@@ -706,7 +734,7 @@ typename linked_list<T>::node_iterator minimum(linked_list<T>& list)
 	for (auto i = list.begin(); i != list.end(); i++)
 	{
 		//If the minElement is the end() or a smaller value has been found
-		if (minElement == endElement || *i < *minElement)
+		if (minElement == endElement || comparer(*i, *minElement))
 		{
 			//Set the minElement iterator to the current iterator
 			minElement = i;

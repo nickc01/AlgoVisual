@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
-#include <common_traits.h>
+#include <common.h>
 #include "binary_search_tree.h"
-#include <gtest/gtest.h>
 
 TEST(BinarySearchTree, Insert)
 {
@@ -68,6 +67,8 @@ TEST(BinarySearchTree, Remove)
 
 TEST(BinarySearchTree, CopyConstructorTest)
 {
+
+
 	//Create a starting list
 	binary_search_tree<int> testList{};
 	testList.insert(6523);

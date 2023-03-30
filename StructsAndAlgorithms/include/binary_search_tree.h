@@ -4,12 +4,13 @@
 #include <ostream>
 #include <algorithm>
 #include <type_traits>
-#include <common_traits.h>
+#include <common.h>
 #include <struct_exception.h>
-
+#include <common.h>
+#include <functional>
 
 //An AVL Binary Search Tree that stores a list of items in the form a tree. It's AVL, meaning, it can automatically balance itself to provide the best performance possible
-template<typename T>
+template<typename T, typename Comparer = std::function<bool(T,T)>>
 class binary_search_tree
 {
     //Represents a node in the tree. Each node can have a parent node, and two child nodes.
@@ -39,6 +40,7 @@ class binary_search_tree
     node* root = nullptr; //Represents the top most node in the tree. If this node is null, then the tree is empty.
     int treeSize = 0; //Represents how many nodes are in the tree.
     bool selfBalancing = true; //Whether the tree is self-balancing or not
+    Comparer comparer;
 
     //Updates the height values of a node and recursively update the heights of its parents
     void UpdateHeights(node* node)
@@ -145,7 +147,7 @@ class binary_search_tree
         while (parent != nullptr)
         {
             //If the data to be inserted is less than the parent data, then the new node should be a left child
-            if (data < parent->data)
+            if (comparer(data, parent->data))
             {
                 //If the parent doesn't have a left child
                 if (parent->leftChild == nullptr)
@@ -215,7 +217,7 @@ class binary_search_tree
                 return subtree;
             }
             //If the data is less than the subtree node, then try to find the data in the left child subtree
-            if (dataToFind < subtree->data)
+            if (comparer(dataToFind, subtree->data))
             {
                 subtree = subtree->leftChild;
                 //return find(std::forward<DataType>(dataToFind), subtree->leftChild);
@@ -245,7 +247,7 @@ class binary_search_tree
             return subtree;
         }
         //If the data is less than the subtree node, then try to find the data in the left child subtree
-        if (dataToFind < subtree->data)
+        if (comparer(dataToFind, subtree->data))
         {
             return find(std::forward<DataType>(dataToFind), subtree->leftChild);
         }
@@ -619,19 +621,19 @@ class binary_search_tree
             //Get how balance the current node is
             int balance = getSubtreeBalance(currentNode);
             //If the node is left-heavy, the node has a left child and the "x" node is a left child within the left subtree
-            if (balance > 1 && currentNode->leftChild != nullptr && x->data < currentNode->leftChild->data)
+            if (balance > 1 && currentNode->leftChild != nullptr && comparer(x->data, currentNode->leftChild->data))
             {
                 //Do a right rotation
                 rightRotation(currentNode);
             }
             //If the node is right-heavy, the node has a right child and the "x" node is a right child within the left subtree
-            else if (balance < -1 && currentNode->rightChild != nullptr && x->data > currentNode->rightChild->data)
+            else if (balance < -1 && currentNode->rightChild != nullptr && comparer(x->data, currentNode->rightChild->data))
             {
                 //Do a right rotation
                 leftRotation(currentNode);
             }
             //If the node is left-heavy, the node has a left child and the "x" node is a right child within the left subtree
-            else if (balance > 1 && currentNode->leftChild != nullptr && x->data > currentNode->leftChild->data)
+            else if (balance > 1 && currentNode->leftChild != nullptr && comparer(x->data, currentNode->leftChild->data))
             {
                 //Do a left rotation on the left child
                 leftRotation(currentNode->leftChild);
@@ -639,7 +641,7 @@ class binary_search_tree
                 rightRotation(currentNode);
             }
             //If the node is right-heavy, the node has a right child and the "x" node is a left child within the left subtree
-            else if (balance < -1 && currentNode->rightChild != nullptr && x->data < currentNode->rightChild->data)
+            else if (balance < -1 && currentNode->rightChild != nullptr && comparer(x->data, currentNode->rightChild->data))
             {
                 //Do a right rotation on the right child
                 rightRotation(currentNode->rightChild);
@@ -647,7 +649,7 @@ class binary_search_tree
                 leftRotation(currentNode);
             }
             //If the "x" node is somewhere in the left subtree
-            if (x->data < currentNode->data)
+            if (comparer(x->data, currentNode->data))
             {
                 //Go to the left child
                 currentNode = currentNode->leftChild;
@@ -676,12 +678,12 @@ class binary_search_tree
     class iterator_base
     {
         //Used for accessing the private details of the binary_search_tree class
-        friend class binary_search_tree<T>;
+        friend class binary_search_tree<T, Comparer>;
 
         //The type of node this iterator will be accessing. This type will be const if "is_const" is true
         using NodeType = make_const_if_true<node, is_const>;
         //The type of tree the iterator will be accessing. This type will be const if "is_const" is true
-        using TreeType = make_const_if_true<binary_search_tree<T>, is_const>;
+        using TreeType = make_const_if_true<binary_search_tree<T, Comparer>, is_const>;
 
         //The node that the iterator points to. This will be "const node*" if "is_const" is true
         NodeType* nodePtr;
@@ -689,7 +691,7 @@ class binary_search_tree
         //Previous node that the iterator was previously. This will be "const node*" if "is_const" is true
         NodeType* previousNode = nullptr;
 
-        //The binary search tree the iterator is a part of. This will be "const binary_search_tree<T>*" if "is_const" is true
+        //The binary search tree the iterator is a part of. This will be "const binary_search_tree<T, Comparer>*" if "is_const" is true
         TreeType* tree;
 
         //Constructs a new iterator from a node and tree
@@ -901,10 +903,12 @@ public:
     }
 
     //Default constructor for a binary search tree
-    binary_search_tree() {}
+    binary_search_tree() : comparer(sorting_impl::DefaultComparer<T>) {}
+
+    binary_search_tree(Comparer&& comp) : comparer(std::move(comp)) {}
 
     //Constructs a new binary search tree from an intializer list
-    binary_search_tree(const std::initializer_list<T> list)
+    binary_search_tree(const std::initializer_list<T> list) : binary_search_tree(sorting_impl::DefaultComparer<T>)
     {
         //Loop over all the values in the list and add them into the tree
         for (const auto& value : list)
@@ -914,8 +918,10 @@ public:
     }
 
     //A copy constructor for creating a new tree from a copy
-    binary_search_tree(const binary_search_tree<T>& toCopy)
+    binary_search_tree(const binary_search_tree<T, Comparer>& toCopy)
     {
+        comparer = toCopy.comparer;
+
         //Loop over all the values in the copy
         for (auto& value : toCopy)
         {
@@ -925,7 +931,7 @@ public:
     }
 
     //A move constructor for creating a new tree by moving the data from an old tree
-    binary_search_tree(binary_search_tree<T>&& toMove) noexcept
+    binary_search_tree(binary_search_tree<T, Comparer>&& toMove) noexcept
     {
         //Move the root node
         root = toMove.root;
@@ -934,25 +940,31 @@ public:
         //Reset the root and treeSize of the old tree
         toMove.root = nullptr;
         toMove.treeSize = 0;
+
+        comparer = std::move(toMove.comparer);
     }
 
     //A copy assignment operator for making a tree identical to a copy
-    binary_search_tree<T>& operator=(const binary_search_tree<T>& toCopy) noexcept
+    binary_search_tree<T, Comparer>& operator=(const binary_search_tree<T, Comparer>& toCopy) noexcept
     {
         //Clear the current tree
         clear();
+
+        comparer = toCopy.comparer;
+
         //Loop over all the values in the copy
         for (auto& value : toCopy)
         {
             //Insert each of the values into the current tree
             insert(value);
         }
+
         //Return the current tree
         return *this;
     }
 
     //A move assignment operator for taking the contents of an existing tree and moving them to the current tree
-    binary_search_tree<T>& operator=(binary_search_tree<T>&& toMove) noexcept
+    binary_search_tree<T, Comparer>& operator=(binary_search_tree<T, Comparer>&& toMove) noexcept
     {
         //Clear the existing tree
         clear();
@@ -962,6 +974,9 @@ public:
         //Reset the root and tree size value of the old tree
         toMove.root = nullptr;
         toMove.treeSize = 0;
+
+        comparer = std::move(toMove.comparer);
+
         //Return the current tree
         return *this;
     }
@@ -1176,8 +1191,8 @@ public:
 };
 
 //Used for printing the tree to a stream
-template<typename T>
-std::ostream& operator<<(std::ostream& stream, const binary_search_tree<T>& tree)
+template<typename T, typename Comparer>
+std::ostream& operator<<(std::ostream& stream, const binary_search_tree<T, Comparer>& tree)
 {
     //Get the size of the tree
     int size = tree.getSize();

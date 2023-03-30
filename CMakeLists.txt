@@ -14,11 +14,11 @@ set(IMGUI_WITH_IMPL OFF)
 add_library(StructsAndAlgorithms 
 "StructsAndAlgorithms/include/binary_search_tree.h"
 "StructsAndAlgorithms/include/linked_list.h" 
-"StructsAndAlgorithms/include/common_traits.h" 
-"StructsAndAlgorithms/src/common_traits.cpp" 
+"StructsAndAlgorithms/include/common.h" 
+"StructsAndAlgorithms/src/common.cpp" 
 "StructsAndAlgorithms/include/graph.h"
 "StructsAndAlgorithms/include/struct_exception.h"
-"StructsAndAlgorithms/src/struct_exception.cpp")
+"StructsAndAlgorithms/src/struct_exception.cpp"  "StructsAndAlgorithms/include/insertion_sort.h" "StructsAndAlgorithms/include/merge_sort.h" "StructsAndAlgorithms/include/bubble_sort.h" "StructsAndAlgorithms/include/quick_sort.h" "StructsAndAlgorithms/include/heap_sort.h")
 
 target_include_directories(StructsAndAlgorithms PUBLIC "StructsAndAlgorithms/include")
 set_target_properties(StructsAndAlgorithms PROPERTIES LINKER_LANGUAGE CXX)
@@ -26,8 +26,6 @@ set_target_properties(StructsAndAlgorithms PROPERTIES LINKER_LANGUAGE CXX)
 add_executable(${PROJECT_NAME} 
 "Visualizer/src/main.cpp" 
 "Visualizer/include/test.h"
-"Visualizer/include/Graphics/Button.h" 
-"Visualizer/src/Graphics/Button.cpp" 
 "Visualizer/src/event.cpp" 
 "Visualizer/include/Event.h"  
 "Visualizer/include/render_list.h" 
@@ -35,7 +33,7 @@ add_executable(${PROJECT_NAME}
 "Visualizer/include/misc.h" 
 "Visualizer/src/misc.cpp"
 "Visualizer/include/rlImGui.h"
-"Visualizer/src/rlImGui.cpp")
+"Visualizer/src/rlImGui.cpp" "Visualizer/include/options.h" "Visualizer/src/options.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "Visualizer/include")
 
@@ -57,6 +55,7 @@ target_link_libraries(GTEST::GTEST INTERFACE gtest_main)
 add_executable(AlgoTests 
 "test/src/linked_list_tests.cpp"
 "test/src/binary_search_tree_tests.cpp" 
-"test/src/graph_tests.cpp")
+"test/src/graph_tests.cpp"
+"test/src/algorithm_tests.cpp")
 
 target_link_libraries(AlgoTests PRIVATE GTEST::GTEST StructsAndAlgorithms)

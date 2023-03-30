@@ -12,11 +12,30 @@
 #include <rlImGui.h>
 #include <binary_search_tree.h>
 #include <graph.h>
+#include <options.h>
 
 using namespace std;
 
+constexpr const char* WINDOW_TITLE = "Algorithm Tester";
+
+
+std::vector<std::string> optionNames;
+std::unique_ptr<const char* []> optionNamesCStr;
+int itemCount = 0;
+
+int selectedItem = 0;
+
+void setup();
+void cleanup();
+void start_draw();
+void end_draw();
+
 int main()
 {
+	optionNames = create_option_strings();
+	optionNamesCStr = convertToCharArrays(optionNames);
+	//create_option_strings(&items, &itemCount);
+
 	graph<int> testGraph;
 
 	binary_search_tree<int> testTree;
@@ -38,66 +57,56 @@ int main()
 
 	std::cout << test << std::endl;
 
-	InitWindow(800, 600, "Test Window");
-
-	SetWindowState(FLAG_WINDOW_RESIZABLE);
-
-	SetTargetFPS(60);
-
-	//Button button{ 400, 300, "This is a test" };
-
-	//render_list renderables;
-	//update_list updatables;
-
-	//renderables.add(button);
-	//updatables.add(button);
-
-	rlImGuiSetup(true);
+	setup();
 
 	while (!WindowShouldClose())
 	{
-		auto dt = GetFrameTime();
+		start_draw();
 
-		//updatables.update(dt);
-
-		BeginDrawing();
-
-		ClearBackground(RAYWHITE);
-
-		stringstream stream;
-
-		stream << test;
-
-		auto listText = stream.str();
-
-		constexpr int font_size = 40;
-
-		auto size = MeasureText(listText.c_str(), font_size);
-
-		auto windowHeight = GetScreenHeight();
-		auto windowWidth = GetScreenWidth();
-
-
-		//renderables.render();
-
-		DrawText(listText.c_str(), (windowWidth / 2) - (size / 2), (windowHeight / 2) - (font_size / 2), font_size, RED);
-
-		// start ImGui Conent
-		rlImGuiBegin();
-
-		// show ImGui Content
 		bool open = true;
-		//ImGui::ShowDemoWindow(&open);
 
-		ImGui::Begin("Test Window");
+		ImGui::Begin(WINDOW_TITLE);
+
+		ImGui::ListBox("TESTBOX2",&selectedItem, optionNamesCStr.get(), optionNames.size());
 
 		ImGui::End();
 
-		// end ImGui Content
-		rlImGuiEnd();
-
-		EndDrawing();
+		end_draw();
 	}
 
+	cleanup();
+}
+
+void start_draw()
+{
+	BeginDrawing();
+
+	ClearBackground(RAYWHITE);
+
+	// start ImGui Conent
+	rlImGuiBegin();
+}
+
+void end_draw()
+{
+	// end ImGui Content
+	rlImGuiEnd();
+
+	EndDrawing();
+}
+
+void setup()
+{
+	InitWindow(800, 600, WINDOW_TITLE);
+
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
+
+	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
+
+	rlImGuiSetup(true);
+}
+
+void cleanup()
+{
 	CloseWindow();
 }

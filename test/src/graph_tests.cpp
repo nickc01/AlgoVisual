@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <common_traits.h>
+#include <common.h>
 #include <graph.h>
 #include <gtest/gtest.h>
 

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <common_traits.h>
+#include <common.h>
 #include <linked_list.h>
 
 TEST(LinkedListTests, CopyConstructorTest)
