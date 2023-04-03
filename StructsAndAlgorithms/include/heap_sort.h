@@ -26,7 +26,7 @@ void heap_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
 {
 	using valueType = typename std::remove_reference<decltype(*begin)>::type;
 
-	binary_search_tree<valueType> tree;
+	binary_search_tree<valueType> tree {};
 
 	//Add all the values into the tree
 	//When all the values are inserted, we can use the tree's iterator to iterate from lowest to highest value

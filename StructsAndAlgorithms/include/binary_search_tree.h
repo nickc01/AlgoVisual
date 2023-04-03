@@ -10,7 +10,7 @@
 #include <functional>
 
 //An AVL Binary Search Tree that stores a list of items in the form a tree. It's AVL, meaning, it can automatically balance itself to provide the best performance possible
-template<typename T, typename Comparer = std::function<bool(T,T)>>
+template<typename T, typename Comparer = std::function<bool(const T&,const T&)>>
 class binary_search_tree
 {
     //Represents a node in the tree. Each node can have a parent node, and two child nodes.

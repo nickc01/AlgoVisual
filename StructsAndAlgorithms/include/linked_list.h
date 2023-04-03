@@ -587,6 +587,7 @@ public:
 		}
 		return end();
 	}
+	
 
 	const_node_iterator find(T&& value) const
 	{

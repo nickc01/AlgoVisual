@@ -9,7 +9,7 @@
 template<typename iteratable>
 void quick_sort(iteratable& list)
 {
-	quick_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
+	quick_sort(std::move(list.begin()), std::move(list.end()), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
 }
 
 //Runs a insertion sort algorithm on the iterator range
@@ -20,8 +20,8 @@ void quick_sort(iteratorType&& begin, iteratorType&& end)
 }
 
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
-template<typename iteratorType, typename Comparer>
-void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
+template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
+void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	//Removes the reference from the type to make it a value type
 	using ValueType = typename std::remove_reference<iteratorType>::type;
@@ -55,7 +55,7 @@ void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
 		if (comparer(*i,*pivot))
 		{
 			//Move the value to the left side of the array
-			std::swap(*lowEnd,*i);
+			swapper(lowEnd,i);
 			//Increment the lower end iterator
 			++lowEnd;
 		}
@@ -63,7 +63,7 @@ void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
 
 	//Move the pivot to where the lower values end.
 	//At this point, all lower values should be left of the pivot, while greater values to the right of the pivot
-	std::swap(*lowEnd, *pivot);
+	swapper(lowEnd, pivot);
 
 	//Quick sort the lower values
 	quick_sort(begin, lowEnd, comparer);

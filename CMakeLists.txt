@@ -33,7 +33,13 @@ add_executable(${PROJECT_NAME}
 "Visualizer/include/misc.h" 
 "Visualizer/src/misc.cpp"
 "Visualizer/include/rlImGui.h"
-"Visualizer/src/rlImGui.cpp" "Visualizer/include/options.h" "Visualizer/src/options.cpp")
+"Visualizer/src/rlImGui.cpp"
+"Visualizer/include/options.h"
+"Visualizer/src/options.cpp"
+"Visualizer/include/OptionRenderers/OptionRenderer.h"
+"Visualizer/src/OptionRenderers/OptionRenderer.cpp"
+"Visualizer/include/OptionRenderers/AlgorithmRenderer.h"
+"Visualizer/src/OptionRenderers/AlgorithmRenderer.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "Visualizer/include")
 

@@ -60,6 +60,7 @@ namespace merge_sort_impl
 		//The queues for storing the contents of range A and range B out of place
 		std::queue<typename std::remove_reference<decltype(*aBegin)>::type> listA;
 		std::queue<typename std::remove_reference<decltype(*aBegin)>::type> listB;
+		
 
 		//Add the elements of range a to listA
 		for (auto i = aBegin; i != aEnd; i++)
@@ -127,8 +128,8 @@ void merge_sort(iteratorType&& begin, iteratorType&& end)
 }
 
 //Runs a merge sort algorithm on the iteratorType range with the specified comparer
-template<typename iteratorType, typename Comparer>
-void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
+template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
+void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	//Removes the reference from the type to make it a value type
 	using ValueType = typename std::remove_reference<iteratorType>::type;

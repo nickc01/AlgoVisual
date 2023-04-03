@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <common.h>
+#include <functional>
 
 //Runs a insertion sort algorithm on the list
 template<typename iteratable>
@@ -18,8 +19,8 @@ void bubble_sort(iteratorType&& begin, iteratorType&& end)
 }
 
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
-template<typename iteratorType, typename Comparer>
-void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
+template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
+void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	while (true)
 	{
@@ -42,7 +43,7 @@ void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
 			if (comparer(*next, *i))
 			{
 				//Swap the next and current elements
-				std::swap(*i, *next);
+				swapper(i,next);
 
 				//Mark the list as unsorted
 				sorted = false;

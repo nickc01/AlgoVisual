@@ -1,6 +1,9 @@
+#include "OptionRenderers/AlgorithmRenderer.h"
+#include "common.h"
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <memory>
 #include <functional>
 
 #include <test.h>
@@ -13,6 +16,8 @@
 #include <binary_search_tree.h>
 #include <graph.h>
 #include <options.h>
+#include <OptionRenderers/OptionRenderer.h>
+#include <quick_sort.h>
 
 using namespace std;
 
@@ -31,13 +36,25 @@ void cleanup();
 void start_draw();
 void end_draw();
 
+std::vector<std::shared_ptr<OptionRenderer>> renderers;
+
+void createRenderers();
+
+
 int main()
 {
 	optionNames = create_option_strings();
 	optionNamesCStr = convertToCharArrays(optionNames);
+
+	update_list updatables;
+	render_list renderables;
+
+
+
+
 	//create_option_strings(&items, &itemCount);
 
-	graph<int> testGraph;
+	/*graph<int> testGraph;
 
 	binary_search_tree<int> testTree;
 
@@ -56,7 +73,7 @@ int main()
 	test.insert(12345, iter);
 	test.pop_element(iter);
 
-	std::cout << test << std::endl;
+	std::cout << test << std::endl;*/
 
 	setup();
 
@@ -64,11 +81,16 @@ int main()
 	{
 		start_draw();
 
-		bool open = true;
-
 		ImGui::Begin(WINDOW_TITLE);
 
-		ImGui::ListBox("TESTBOX2",&selectedItem, optionNamesCStr.get(), optionNames.size());
+		auto original = selectedItem;
+		ImGui::ListBox("Options",&selectedItem, optionNamesCStr.get(), optionNames.size());
+
+		if (uiLocked()) {
+			selectedItem = original;
+		}
+
+
 
 		ImGui::End();
 
@@ -105,6 +127,43 @@ void setup()
 	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
 	rlImGuiSetup(true);
+}
+
+void createRenderers() {
+	using arrayType = std::vector<float>;
+
+	using sorterType = std::function<void(arrayType&)>;
+	//QuickSort
+	/*auto renderer = AlgorithmRenderer{[](std::vector<float>& list){
+		quick_sort<std::vector<float>>(list);
+	}};
+	renderers.push_back(std::move(renderer));*/
+
+	arrayType test;
+
+	//using testType = typename std::decay<decltype(*std::begin(test))>::type;
+
+	//auto& ref = test;
+
+	quick_sort(test);
+	/*auto sorter = [](arrayType& list){
+		quick_sort(list);
+	};*/
+
+	//using testType2 = decltype(sorting_impl::DefaultComparer<decltype(*std::begin(test))>);
+
+	//AlgorithmRenderer tester {std::move(sorter)};
+
+	//auto renderer = std::make_shared<AlgorithmRenderer>(std::move(sorter));
+
+	//renderers.emplace_back(std::move(renderer));
+
+	//quick_sort(test);
+
+	/*auto renderer = std::make_shared<AlgorithmRenderer>([](arrayType& list){
+		quick_sort(std::begin(list),std::end(list));
+	});
+	renderers.emplace_back(std::move(renderer));*/
 }
 
 void cleanup()

@@ -13,7 +13,19 @@ namespace sorting_impl
 	{
 		return a < b;
 	}
+
+	template<typename T>
+	constexpr void DefaultSwapper(T& lhs, T& rhs)
+	{
+		auto temp = (*lhs);
+		(*lhs) = (*rhs);
+		(*rhs) = temp;
+	}
 }
 
 
 std::string version();
+
+long addUILock();
+bool removeUILock(long number);
+bool uiLocked();

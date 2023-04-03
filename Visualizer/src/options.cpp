@@ -1,12 +1,6 @@
 #include <options.h>
 #include <type_traits>
 
-namespace
-{
-	//std::unique_ptr<std::string[]> optionNames;
-	//std::unique_ptr<const char*[]> optionNamesCStr;
-}
-
 std::vector<std::string> create_option_strings() {
 	std::vector<std::string> optionNames{};
 
@@ -30,15 +24,15 @@ std::vector<std::string> create_option_strings() {
 		case Option::InsertionSort:
 			optionNames.push_back("Insertion Sort");
 			break;
-		case Option::MergeSort:
+		/*case Option::MergeSort:
 			optionNames.push_back("Merge Sort");
-			break;
+			break;*/
 		case Option::QuickSort:
 			optionNames.push_back("Quick Sort");
 			break;
-		case Option::HeapSort:
+		/*case Option::HeapSort:
 			optionNames.push_back("Heap Sort");
-			break;
+			break;*/
 		default:
 			optionNames.push_back("UNKNOWN OPTION");
 			break;

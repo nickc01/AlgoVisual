@@ -10,9 +10,7 @@ enum class Option
 	Graph,
 	BubbleSort,
 	InsertionSort,
-	MergeSort,
 	QuickSort,
-	HeapSort,
 
 	MAX
 };

@@ -9,6 +9,7 @@ out/
 .vs/
 cmake-build-*/
 .vscode/
+.cache/
 
 # Node artifact files
 node_modules/
