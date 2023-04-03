@@ -18,6 +18,8 @@
 #include <options.h>
 #include <OptionRenderers/OptionRenderer.h>
 #include <quick_sort.h>
+#include <insertion_sort.h>
+#include <bubble_sort.h>
 
 using namespace std;
 
@@ -36,7 +38,7 @@ void cleanup();
 void start_draw();
 void end_draw();
 
-std::vector<std::shared_ptr<OptionRenderer>> renderers;
+std::vector<std::shared_ptr<OptionRenderer>> optionRenderers;
 
 void createRenderers();
 
@@ -130,23 +132,23 @@ void setup()
 }
 
 void createRenderers() {
-	using arrayType = std::vector<float>;
+	using arrayType = linked_list<float>;
 
-	using sorterType = std::function<void(arrayType&)>;
+	//using sorterType = std::function<void(arrayType&)>;
 	//QuickSort
 	/*auto renderer = AlgorithmRenderer{[](std::vector<float>& list){
 		quick_sort<std::vector<float>>(list);
 	}};
 	renderers.push_back(std::move(renderer));*/
 
-	arrayType test;
+	//arrayType test;
 
 	//using testType = typename std::decay<decltype(*std::begin(test))>::type;
 
 	//auto& ref = test;
 
-	quick_sort(test);
-	/*auto sorter = [](arrayType& list){
+	//quick_sort(test);
+	/*auto sorter = [](arrayType& list) {
 		quick_sort(list);
 	};*/
 
@@ -160,10 +162,19 @@ void createRenderers() {
 
 	//quick_sort(test);
 
-	/*auto renderer = std::make_shared<AlgorithmRenderer>([](arrayType& list){
-		quick_sort(std::begin(list),std::end(list));
-	});
-	renderers.emplace_back(std::move(renderer));*/
+	//auto renderer = ;
+
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::QuickSort, [](arrayType& list) {
+		quick_sort(list);
+		}));
+
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::InsertionSort, [](arrayType& list) {
+		insertion_sort(list);
+		}));
+
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::BubbleSort, [](arrayType& list) {
+		bubble_sort(list);
+		}));
 }
 
 void cleanup()

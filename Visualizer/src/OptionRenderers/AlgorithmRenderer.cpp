@@ -1,6 +1,6 @@
 #include <OptionRenderers/AlgorithmRenderer.h>
 
-AlgorithmRenderer::AlgorithmRenderer(SortType&& sort) : sortFunc(std::move(sort)) {
+AlgorithmRenderer::AlgorithmRenderer(Option option, SortType&& sort) : OptionRenderer(option), sortFunc(std::move(sort)) {
 
 }
 

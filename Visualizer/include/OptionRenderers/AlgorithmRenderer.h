@@ -1,19 +1,20 @@
-#include "options.h"
 #pragma once
+#include "options.h"
 #include <OptionRenderers/OptionRenderer.h>
 #include <functional>
+#include <linked_list.h>
 
 
 class AlgorithmRenderer : public OptionRenderer {
 private:
-    std::vector<float> numberList;
+    linked_list<float> numberList;
 
 public:
-    using SortType = std::function<void(std::vector<float>&)>;
+    using SortType = std::function<void(linked_list<float>&)>;
 
     SortType sortFunc;
 
-    AlgorithmRenderer(SortType&& sort);
+    AlgorithmRenderer(Option option, SortType&& sort);
 
     void update(double dt) override;
 
