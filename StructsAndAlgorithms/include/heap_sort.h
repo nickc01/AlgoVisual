@@ -6,20 +6,6 @@
 #include <functional>
 #include <vector>
 
-//Runs a insertion sort algorithm on the list
-template<typename iteratable>
-void heap_sort(iteratable& list)
-{
-	heap_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
-}
-
-//Runs a insertion sort algorithm on the iterator range
-template<typename iteratorType>
-void heap_sort(iteratorType&& begin, iteratorType&& end)
-{
-	heap_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
-}
-
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
 template<typename iteratorType, typename Comparer>
 void heap_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
@@ -42,4 +28,18 @@ void heap_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
 		*k = std::move(*i);
 		++k;
 	}
+}
+
+//Runs a insertion sort algorithm on the iterator range
+template<typename iteratorType>
+void heap_sort(iteratorType&& begin, iteratorType&& end)
+{
+	heap_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
+}
+
+//Runs a insertion sort algorithm on the list
+template<typename iteratable>
+void heap_sort(iteratable& list)
+{
+	heap_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
 }

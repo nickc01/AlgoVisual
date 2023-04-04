@@ -39,7 +39,9 @@ add_executable(${PROJECT_NAME}
 "Visualizer/include/OptionRenderers/OptionRenderer.h"
 "Visualizer/src/OptionRenderers/OptionRenderer.cpp"
 "Visualizer/include/OptionRenderers/AlgorithmRenderer.h"
-"Visualizer/src/OptionRenderers/AlgorithmRenderer.cpp")
+"Visualizer/src/OptionRenderers/AlgorithmRenderer.cpp"
+"Visualizer/src/global.cpp"
+"Visualizer/include/global.h")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "Visualizer/include")
 

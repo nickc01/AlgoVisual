@@ -113,20 +113,6 @@ namespace merge_sort_impl
 	}
 }
 
-//Runs a merge sort algorithm on the list
-template<typename iteratable>
-void merge_sort(iteratable& list)
-{
-	merge_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
-}
-
-//Runs a merge sort algorithm on the iteratorType range
-template<typename iteratorType>
-void merge_sort(iteratorType&& begin, iteratorType&& end)
-{
-	merge_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
-}
-
 //Runs a merge sort algorithm on the iteratorType range with the specified comparer
 template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
 void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
@@ -165,4 +151,18 @@ void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Sw
 
 	//Merge the two ranges into one
 	merge_sort_impl::merge_ranges(aBegin, aEnd, bBegin, bEnd, comparer);
+}
+
+//Runs a merge sort algorithm on the iteratorType range
+template<typename iteratorType>
+void merge_sort(iteratorType&& begin, iteratorType&& end)
+{
+	merge_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
+}
+
+//Runs a merge sort algorithm on the list
+template<typename iteratable>
+void merge_sort(iteratable& list)
+{
+	merge_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
 }

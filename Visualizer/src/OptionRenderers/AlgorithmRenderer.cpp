@@ -1,3 +1,4 @@
+#include "OptionRenderers/OptionRenderer.h"
 #include "imgui.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -10,6 +11,7 @@ AlgorithmRenderer::AlgorithmRenderer(std::string name, SortType&& sort) : Option
 
 
 void AlgorithmRenderer::update(double dt) {
+    OptionRenderer::update(dt);
     for (auto& value : numberList) {
         value.x = Lerp(value.x, value.targetX, INTERPOLATION_SPEED * dt);
         value.y = Lerp(value.y, value.targetY, INTERPOLATION_SPEED * dt);
@@ -50,16 +52,23 @@ void AlgorithmRenderer::render() {
 
     for (auto value : numberList) {
 
-        auto centerX = 400;
-        auto centerY = 300;
+        //auto centerX = 400;
+        //auto centerY = 300;
 
-        DrawCircle(centerX + value.x,centerY + value.y,CIRCLE_SIZE,RED);
+        //auto test = (centerX + value.x) / 2;
+
+        auto circlePos = transformPosition(value.x, value.y);
+
+
+        DrawCircle(circlePos.x,circlePos.y,CIRCLE_SIZE / scale,RED);
 
         auto str = std::to_string(value.value);
 
-        auto textWidth = MeasureText(str.c_str(),TEXT_SIZE);
+        float textWidth = MeasureText(str.c_str(),TEXT_SIZE);
 
-        DrawText(str.c_str(),centerX + value.x - (textWidth / 2),centerY + value.y - (TEXT_SIZE / 2),TEXT_SIZE,WHITE);
+        auto textPos = transformPosition(value.x  - (textWidth / 2), value.y - (TEXT_SIZE / 2));
+
+        DrawText(str.c_str(),textPos.x,textPos.y,TEXT_SIZE / scale,WHITE);
 
     }
 }
@@ -69,15 +78,15 @@ const std::string& AlgorithmRenderer::getName() const {
 }
 
 void AlgorithmRenderer::createStarterList() {
-    numberList.push_back(visualValue(5,0 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(1,1 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(2,2 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(11,3 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(15,4 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(0,5 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(4,6 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(3,7 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(9,8 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(2,9 * CIRCLE_SPACING,0));
-    numberList.push_back(visualValue(13,10 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(5,-5 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(1,-4 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(2,-3 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(11,-2 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(15,-1 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(0,0 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(4,1 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(3,2 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(9,3 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(2,4 * CIRCLE_SPACING,0));
+    numberList.push_back(visualValue(13,5 * CIRCLE_SPACING,0));
 }

@@ -4,20 +4,6 @@
 #include <vector>
 #include <functional>
 
-//Runs a insertion sort algorithm on the list
-template<typename iteratable>
-void insertion_sort(iteratable& list)
-{
-	insertion_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
-}
-
-//Runs a insertion sort algorithm on the iterator range
-template<typename iteratorType>
-void insertion_sort(iteratorType&& begin, iteratorType&& end)
-{
-	insertion_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
-}
-
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
 template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
 void insertion_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
@@ -49,4 +35,18 @@ void insertion_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer
 			--current;
 		}
 	}
+}
+
+//Runs a insertion sort algorithm on the iterator range
+template<typename iteratorType>
+void insertion_sort(iteratorType&& begin, iteratorType&& end)
+{
+	insertion_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
+}
+
+//Runs a insertion sort algorithm on the list
+template<typename iteratable>
+void insertion_sort(iteratable& list)
+{
+	insertion_sort(std::begin(list), std::end(list), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
 }

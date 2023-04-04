@@ -5,20 +5,6 @@
 #include <functional>
 #include <vector>
 
-//Runs a insertion sort algorithm on the list
-template<typename iteratable>
-void quick_sort(iteratable& list)
-{
-	quick_sort(std::move(list.begin()), std::move(list.end()), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
-}
-
-//Runs a insertion sort algorithm on the iterator range
-template<typename iteratorType>
-void quick_sort(iteratorType&& begin, iteratorType&& end)
-{
-	quick_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
-}
-
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
 template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
 void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
@@ -70,4 +56,18 @@ void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Sw
 	
 	//Quick sort the higher values
 	quick_sort(lowEnd, end, comparer);
+}
+
+//Runs a insertion sort algorithm on the iterator range
+template<typename iteratorType>
+void quick_sort(iteratorType&& begin, iteratorType&& end)
+{
+	quick_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
+}
+
+//Runs a insertion sort algorithm on the list
+template<typename iteratable>
+void quick_sort(iteratable& list)
+{
+	quick_sort(std::move(list.begin()), std::move(list.end()), sorting_impl::DefaultComparer<decltype(*std::begin(list))>);
 }
