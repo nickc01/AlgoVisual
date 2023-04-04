@@ -1,15 +1,13 @@
 #pragma once
-#include <options.h>
+#include <string>
 
 class OptionRenderer {
-protected:
-    Option option;
 public:
-    OptionRenderer(Option option);
+    OptionRenderer();
 
     virtual void update(double dt) = 0;
 
     virtual void render() = 0;
 
-    Option getOption() const;
+    virtual const std::string& getName() const = 0;
 };

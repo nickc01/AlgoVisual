@@ -15,7 +15,6 @@
 #include <rlImGui.h>
 #include <binary_search_tree.h>
 #include <graph.h>
-#include <options.h>
 #include <OptionRenderers/OptionRenderer.h>
 #include <quick_sort.h>
 #include <insertion_sort.h>
@@ -27,7 +26,7 @@ constexpr const char* WINDOW_TITLE = "Algorithm Tester";
 
 //TEST
 
-std::vector<std::string> optionNames;
+//std::vector<std::string> optionNames;
 std::unique_ptr<const char* []> optionNamesCStr;
 int itemCount = 0;
 
@@ -39,17 +38,27 @@ void start_draw();
 void end_draw();
 
 std::vector<std::shared_ptr<OptionRenderer>> optionRenderers;
-
 void createRenderers();
+std::unique_ptr<const char*[]> convertToCharArrays(const decltype(optionRenderers)& values);
+
+std::shared_ptr<OptionRenderer> selectedRenderer = nullptr;
 
 
 int main()
 {
-	optionNames = create_option_strings();
-	optionNamesCStr = convertToCharArrays(optionNames);
+	createRenderers();
+	//optionNames = create_option_strings();
+	optionNamesCStr = convertToCharArrays(optionRenderers);
 
-	update_list updatables;
+	selectedRenderer = optionRenderers[selectedItem];
+
+	/*update_list updatables;
 	render_list renderables;
+
+	for (auto renderer : optionRenderers) {
+		updatables.add(*renderer);
+		renderables.add(*renderer);
+	}*/
 
 
 
@@ -86,11 +95,18 @@ int main()
 		ImGui::Begin(WINDOW_TITLE);
 
 		auto original = selectedItem;
-		ImGui::ListBox("Options",&selectedItem, optionNamesCStr.get(), optionNames.size());
+		ImGui::ListBox("Options",&selectedItem, optionNamesCStr.get(), optionRenderers.size());
 
 		if (uiLocked()) {
 			selectedItem = original;
 		}
+		
+		if (selectedRenderer != optionRenderers[selectedItem]) {
+			selectedRenderer = optionRenderers[selectedItem];
+		}
+
+		selectedRenderer->update(GetFrameTime());
+		selectedRenderer->render();
 
 
 
@@ -164,15 +180,15 @@ void createRenderers() {
 
 	//auto renderer = ;
 
-	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::QuickSort, [](arrayType& list) {
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Quick Sort", [](arrayType& list) {
 		quick_sort(list);
 		}));
 
-	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::InsertionSort, [](arrayType& list) {
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Insertion Sort", [](arrayType& list) {
 		insertion_sort(list);
 		}));
 
-	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>(Option::BubbleSort, [](arrayType& list) {
+	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Bubble Sort", [](arrayType& list) {
 		bubble_sort(list);
 		}));
 }
@@ -180,4 +196,15 @@ void createRenderers() {
 void cleanup()
 {
 	CloseWindow();
+}
+
+std::unique_ptr<const char*[]> convertToCharArrays(const decltype(optionRenderers)& values)
+{
+	auto ptr = std::unique_ptr<const char* []>(new const char*[values.size()]);
+
+	for (int i = 0; i < values.size(); i++)
+	{
+		ptr[i] = values[i]->getName().c_str();
+	}
+	return ptr;
 }
