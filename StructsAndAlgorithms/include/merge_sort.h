@@ -114,8 +114,8 @@ namespace merge_sort_impl
 }
 
 //Runs a merge sort algorithm on the iteratorType range with the specified comparer
-template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
-void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
+template<typename iteratorType, typename Comparer, typename Swapper = std::function<decltype(sorting_impl::DefaultSwapper<iteratorType>)>>
+void merge_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	//Removes the reference from the type to make it a value type
 	using ValueType = typename std::remove_reference<iteratorType>::type;

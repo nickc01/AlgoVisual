@@ -38,23 +38,38 @@ void OptionRenderer::update(double dt) {
         horizontalSpeed += CAM_MOVE_SPEED * dt;
     }
 
+    if (IsMouseButtonPressed(0)) {
+        mouseHeld = true;
+        lastMousePosX = GetMouseX();
+        lastMousePosY = GetMouseY();
+    }
+
+    if (mouseHeld) {
+        int currentMouseX = GetMouseX();
+        int currentMouseY = GetMouseY();
+
+        dest_cam_x += (currentMouseX - lastMousePosX) * MOUSE_MOVE_MULTIPLIER * scale;
+        dest_cam_y += (currentMouseY - lastMousePosY) * MOUSE_MOVE_MULTIPLIER * scale;
+        lastMousePosX = currentMouseX;
+        lastMousePosY = currentMouseY;
+    }
+
+
+    if (IsMouseButtonReleased(0)) {
+        mouseHeld = false;
+    }
+
     dest_cam_x += horizontalSpeed;
     dest_cam_y += verticalSpeed;
 
 
     cam_x = Lerp(cam_x,dest_cam_x,CAM_INTERP_SPEED * dt);
     cam_y = Lerp(cam_y,dest_cam_y,CAM_INTERP_SPEED * dt);
-
-
-
-    //scale = dest_scale;
-    //scale = 0.5;
 }
 
 Vector2 OptionRenderer::transformPosition(float x, float y) const {
     Vector2 vector;
-    vector.x = (GetScreenWidth() / 2) + ((x + cam_x) / scale) + (cam_x / scale);
-    vector.y = (GetScreenHeight() / 2) + ((y + cam_y) / scale) + (cam_y / scale);
-
+    vector.x = (GetScreenWidth() / 2.0) + ((x + cam_x) / scale) + (cam_x / scale);
+    vector.y = (GetScreenHeight() / 2.0) + ((y + cam_y) / scale) + (cam_y / scale);
     return vector;
 }

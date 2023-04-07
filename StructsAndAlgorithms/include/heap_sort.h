@@ -8,7 +8,7 @@
 
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
 template<typename iteratorType, typename Comparer>
-void heap_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer)
+void heap_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer)
 {
 	using valueType = typename std::remove_reference<decltype(*begin)>::type;
 

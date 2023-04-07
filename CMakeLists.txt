@@ -40,8 +40,15 @@ add_executable(${PROJECT_NAME}
 "Visualizer/src/OptionRenderers/OptionRenderer.cpp"
 "Visualizer/include/OptionRenderers/AlgorithmRenderer.h"
 "Visualizer/src/OptionRenderers/AlgorithmRenderer.cpp"
+"Visualizer/include/OptionRenderers/BinarySearchTreeRenderer.h"
+"Visualizer/src/OptionRenderers/BinarySearchTreeRenderer.cpp"
+"Visualizer/include/OptionRenderers/GraphRenderer.h"
+"Visualizer/src/OptionRenderers/GraphRenderer.cpp"
 "Visualizer/src/global.cpp"
-"Visualizer/include/global.h")
+"Visualizer/include/global.h"
+"Visualizer/src/visual_container.cpp"
+"Visualizer/include/visual_container.h")
+
 
 target_include_directories(${PROJECT_NAME} PUBLIC "Visualizer/include")
 

@@ -7,6 +7,10 @@ protected:
     float scale;
     float cam_x;
     float cam_y;
+
+    bool mouseHeld = false;
+    int lastMousePosX;
+    int lastMousePosY;
 public:
     float dest_scale;
     float dest_cam_x;
@@ -17,6 +21,13 @@ public:
     static constexpr float SCALE_MOVE_SPEED = 0.07;
     static constexpr float CAM_INTERP_SPEED = 7;
     static constexpr float CAM_MOVE_SPEED = 300;
+    static constexpr float MOUSE_MOVE_MULTIPLIER = 0.5;
+
+    static constexpr float CIRCLE_SIZE = 50;
+    static constexpr float CIRCLE_SPACING = 100;
+    static constexpr float INTERPOLATION_SPEED = 7;
+    static constexpr float TEXT_SIZE = 15;
+
 
 
     OptionRenderer();

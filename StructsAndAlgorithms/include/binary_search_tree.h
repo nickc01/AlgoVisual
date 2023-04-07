@@ -50,11 +50,6 @@ class binary_search_tree
         {
             return;
         }
-        //If balancing is turned off, then there's no need to update the heights
-        if (!selfBalancing)
-        {
-            return;
-        }
         while (node != nullptr)
         {
             //If the node has BOTH a left and right child
@@ -70,7 +65,7 @@ class binary_search_tree
                     //Set the new height and go up to the parent and check it's height
                     node->height = newHeight;
                     node = node->parent;
-                    // UpdateHeights(node->parent);
+                    //UpdateHeights(node->parent);
                 }
                 else
                 {
@@ -172,7 +167,7 @@ class binary_search_tree
                 }
             }
             //If the data to be inserted is greater than the parent data, then the new node should be a right child
-            else if (data > parent->data)
+            else if (comparer(parent->data, data))
             {
                 //If the parent doesn't have a right child
                 if (parent->rightChild == nullptr)
@@ -212,7 +207,7 @@ class binary_search_tree
         while (subtree != nullptr)
         {
             //If the data of the subtree is equal to the data we are looking for, then return the subtree node
-            if (subtree->data == dataToFind)
+            if (!comparer(subtree->data, dataToFind) && !comparer(dataToFind, subtree->data))
             {
                 return subtree;
             }
@@ -826,7 +821,42 @@ class binary_search_tree
             this->operator++();
             //Return the previous state
             return previous;
+        }
 
+        iterator_base<is_const> getParent() {
+            if (nodePtr == nullptr) {
+                return iterator_base<is_const>(nullptr,tree);
+            }
+            else {
+                return iterator_base<is_const>(nodePtr->parent,tree);
+            }
+        }
+
+        iterator_base<is_const> getLeft() {
+            if (nodePtr == nullptr) {
+                return iterator_base<is_const>(nullptr,tree);
+            }
+            else {
+                return iterator_base<is_const>(nodePtr->leftChild,tree);
+            }
+        }
+
+        iterator_base<is_const> getRight() {
+            if (nodePtr == nullptr) {
+                return iterator_base<is_const>(nullptr,tree);
+            }
+            else {
+                return iterator_base<is_const>(nodePtr->rightChild, tree);
+            }
+        }
+
+        int getHeight() {
+            if (nodePtr == nullptr) {
+                return 0;
+            }
+            else {
+                return nodePtr->height;
+            }
         }
 
         //Used to get the value of the iterator

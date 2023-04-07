@@ -5,8 +5,8 @@
 #include <functional>
 
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
-template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
-void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
+template<typename iteratorType, typename Comparer, typename Swapper = std::function<decltype(sorting_impl::DefaultSwapper<iteratorType>)>>
+void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	while (true)
 	{

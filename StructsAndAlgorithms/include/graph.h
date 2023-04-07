@@ -1,14 +1,557 @@
 #pragma once
 
+#include "common.h"
 #include <list>
 #include <ostream>
 #include <struct_exception.h>
+#include <unordered_set>
 
+template<typename T>
+class graph2 {
+public:
+	class node {
+		std::unordered_set<node*> connections;
+	public:
+		template<bool is_const>
+		class connection_iterator_base {
+			make_const_if_true<std::unordered_set<node*>,is_const>* connections = nullptr;
+			decltype(connections->begin()) iter;
+		public:
+			using value_type = make_const_if_true<node, is_const>;
+			using reference = value_type&;
+			using pointer = value_type*;
+			using iterator_category = std::forward_iterator_tag;
+			using difference_type = int;
+
+			connection_iterator_base() : connections(), iter() {}
+
+			connection_iterator_base(decltype(connections) _connections, decltype(iter) _iter) : connections(_connections), iter(_iter) {}
+
+			template<bool other_const>
+			connection_iterator_base(const connection_iterator_base<other_const>& other) : connections(other.connections), iter(other.iter) {}
+
+			template<bool other_const>
+			connection_iterator_base(connection_iterator_base<other_const>&& other) noexcept : connections(std::move(other.connections)), iter(std::move(other.iter)) {}
+
+			connection_iterator_base<is_const>& operator++()
+			{
+				++iter;
+				return *this;
+			}
+
+			connection_iterator_base<is_const> operator++(int)
+			{
+				connection_iterator_base<is_const> previous = *this;
+
+				this->operator++();
+
+				return previous;
+			}
+
+			/*connection_iterator_base<is_const>& operator--()
+			{
+				--iter;
+				return *this;
+			}
+
+			connection_iterator_base<is_const> operator--(int)
+			{
+				connection_iterator_base<is_const> previous = *this;
+				
+				this->operator--();
+
+				return previous;
+			}*/
+
+			const value_type& operator*() const
+			{
+				//Return a reference to the value
+				return **iter;
+			}
+			//Used for dereferencing the value
+			//This needs to be const because modifying the value in the tree would mess with the tree's structure
+			const pointer operator->() const
+			{
+				//Return a pointer to the value
+				return *iter;
+			}
+
+			//Tests for inequality
+			bool operator!=(const connection_iterator_base<is_const>& rhs) const
+			{
+				//return rhs.nodePtr != nodePtr || rhs.tree != tree;
+				return connections != rhs.connections || iter != rhs.iter;
+			}
+
+			//Tests for equality
+			bool operator==(const connection_iterator_base<is_const>& rhs) const
+			{
+				//return rhs.nodePtr == nodePtr && rhs.tree == tree;
+				return connections == rhs.connections && iter == rhs.iter;
+			}
+
+			//A copy assignment operator used for assigning a non-const iterator to a const version
+			template<bool other_const = is_const>
+			connection_iterator_base<is_const>& operator=(const connection_iterator_base<other_const>& other) noexcept
+			{
+				connections = other.connections;
+				iter = other.iter;
+				return *this;
+			}
+
+			//A move assignment operator used for assigning a non-const iterator to a const version
+			template<bool other_const = is_const>
+			connection_iterator_base<is_const>& operator=(connection_iterator_base<other_const>&& other) noexcept
+			{
+				connections = std::move(other.connections);
+				iter = std::move(other.iter);
+				return *this;
+			}
+		};
+
+		using iterator = connection_iterator_base<false>;
+		using const_iterator = connection_iterator_base<true>;
+
+		T value;
+
+		template <typename ValueType>
+		node(ValueType&& _value) : value(std::forward<ValueType>(_value)) {}
+
+		bool add_connection_to(node& node) {
+			return connections.emplace(&node).second;
+		}
+
+		bool remove_connection_to(const node& node) {
+			auto result = connections.end();
+			for (auto i = connections.begin(); i != connections.end(); i++) {
+				if (*i == &node) {
+					result = i;
+				}
+			}
+			//auto result = connections.find(&node);
+			if (result != connections.end()) {
+				connections.erase(result);
+				return true;
+			}
+			return false;
+		}
+
+		void remove_all_connections() {
+			connections.clear();
+		}
+
+		bool has_connection_to(const node& node) const {
+			for (auto i = connections.begin(); i != connections.end(); i++) {
+				if (*i == &node) {
+					return true;
+				}
+			}
+			return false;
+			//return connections.find(&node) != connections.end();
+		}
+
+		int connections_size() const {
+			return connections.size();
+		}
+
+		//Returns the start of the node list
+		auto begin()
+		{
+			return iterator(&connections,connections.begin());
+		}
+
+		//Returns the start of the node list
+		auto cbegin() const
+		{
+			return const_iterator(&connections,connections.cbegin());
+		}
+
+		//Returns the start of the node list
+		auto begin() const
+		{
+			return cbegin();
+		}
+
+		//Returns the end of the node list
+		auto end()
+		{
+			return iterator(&connections,connections.end());
+		}
+
+		//Returns the end of the node list
+		auto cend() const
+		{
+			return const_iterator(&connections,connections.cend());
+		}
+
+		//Returns the end of the node list
+		auto end() const
+		{
+			return cend();
+		}
+	};
+
+private:
+	//The list of all the nodes in the graph
+	std::list<node> nodes{};
+public:
+	template<bool is_const>
+	class node_iterator_base {
+		make_const_if_true<std::list<node>, is_const>* source_nodes;
+		decltype(source_nodes->begin()) iter;
+	public:
+		
+		using value_type = make_const_if_true<node, is_const>;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type = int;
+
+		node_iterator_base() = default;
+
+		node_iterator_base(decltype(source_nodes) _nodes) : source_nodes(_nodes), iter(_nodes->end()) {}
+
+		node_iterator_base(decltype(source_nodes) _nodes, decltype(iter) _iter) : source_nodes(_nodes), iter(_iter) {}
+
+		template<bool other_const>
+		node_iterator_base(const node_iterator_base<other_const>& other) : source_nodes(other.source_nodes), iter(other.iter) {}
+
+		template<bool other_const>
+		node_iterator_base(node_iterator_base<other_const>&& other) noexcept : source_nodes(std::move(other.source_nodes)), iter(std::move(other.iter)) {}
+
+		node_iterator_base<is_const>& operator++()
+		{
+			++iter;
+			return *this;
+		}
+
+		node_iterator_base<is_const> operator++(int)
+		{
+			node_iterator_base<is_const> previous = *this;
+
+			this->operator++();
+
+			return previous;
+		}
+
+		node_iterator_base<is_const>& operator--()
+		{
+			--iter;
+			return *this;
+		}
+
+		node_iterator_base<is_const> operator--(int)
+		{
+			node_iterator_base<is_const> previous = *this;
+			
+			this->operator--();
+
+			return previous;
+		}
+
+		const value_type& operator*() const
+		{
+			//Return a reference to the value
+			return *iter;
+		}
+		//Used for dereferencing the value
+		//This needs to be const because modifying the value in the tree would mess with the tree's structure
+		const pointer operator->() const
+		{
+			//Return a pointer to the value
+			return iter.operator->();
+		}
+
+		//Tests for inequality
+		bool operator!=(const node_iterator_base<is_const>& rhs) const
+		{
+			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
+			return source_nodes != rhs.source_nodes || iter != rhs.iter;
+		}
+
+		//Tests for equality
+		bool operator==(const node_iterator_base<is_const>& rhs) const
+		{
+			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
+			return source_nodes == rhs.source_nodes && iter == rhs.iter;
+		}
+
+		//A copy assignment operator used for assigning a non-const iterator to a const version
+		template<bool other_const = is_const>
+		node_iterator_base<is_const>& operator=(const node_iterator_base<other_const>& other) noexcept
+		{
+			source_nodes = other.source_nodes;
+			iter = other.iter;
+			return *this;
+		}
+
+		//A move assignment operator used for assigning a non-const iterator to a const version
+		template<bool other_const = is_const>
+		node_iterator_base<is_const>& operator=(node_iterator_base<other_const>&& other) noexcept
+		{
+			source_nodes = std::move(other.source_nodes);
+			iter = std::move(other.iter);
+			return *this;
+		}
+	};
+
+	using iterator = node_iterator_base<false>;
+	using const_iterator = node_iterator_base<true>;
+
+	//The default constructor for the graph
+	graph2() = default;
+
+	//The copy constructor for the graph
+	graph2(const graph2<T>& toCopy) : nodes(toCopy.nodes)
+	{
+		//Update each of the nodes so that their source graph pointers are pointing to this graph
+		for (auto& node : nodes)
+		{
+			//node.source_nodes = nodes;
+		}
+	}
+	graph2(graph2<T>&& toMove) noexcept : nodes(std::move(toMove.nodes))
+	{
+		for (auto& node : nodes)
+		{
+			//node.source_nodes = nodes;
+		}
+	}
+
+	graph2<T>& operator=(const graph2<T>& toCopy)
+	{
+		//Make a copy of the nodes list
+		nodes = toCopy.nodes;
+		//Update each of the nodes so that their source graph pointers are pointing to this graph
+		/*for (auto& node : nodes)
+		{
+			node.sourceGraph = this;
+		}*/
+	}
+	graph2<T>& operator=(graph2<T>&& toMove)
+	{
+		//Move the nodes list to this graph
+		nodes = std::move(toMove.nodes);
+		//Update each of the nodes so that their source graph pointers are pointing to this graph
+		/*for (auto& node : nodes)
+		{
+			node.sourceGraph = this;
+		}*/
+	}
+
+	//The equality operator
+	bool operator==(const graph2<T>& rhs) const
+	{
+		//Test if the node lists are equal
+		return nodes == rhs.nodes;
+	}
+
+	//The inequality operator
+	bool operator!=(const graph2<T>& rhs) const
+	{
+		//Test of the node lists are not equal
+		return nodes != rhs.nodes;
+	}
+
+	//The destructor for the graph
+	~graph2() = default;
+
+	//Returns the start of the node list
+	auto begin()
+	{
+		return iterator(&nodes,nodes.begin());
+	}
+
+	//Returns the start of the node list
+	auto cbegin() const
+	{
+		return const_iterator(&nodes,nodes.cbegin());
+	}
+
+	//Returns the start of the node list
+	auto begin() const
+	{
+		return cbegin();
+	}
+
+	//Returns the end of the node list
+	auto end()
+	{
+		return iterator(&nodes,nodes.end());
+	}
+
+	//Returns the end of the node list
+	auto cend() const
+	{
+		return const_iterator(&nodes,nodes.cend());
+	}
+
+	//Returns the end of the node list
+	auto end() const
+	{
+		return cend();
+	}
+
+	//Returns how many nodes are in the graph
+	auto size() const
+	{
+		return nodes.size();
+	}
+
+	//Adds a new node to the graph with the specified data
+	template<typename DataType>
+	iterator add_node(DataType&& data)
+	{
+		//Construct a new node and add it to the nodes list
+		nodes.emplace_back(this, std::forward<DataType>(data));
+		//Return a pointer to the last element in the list
+		return iterator(&nodes,--nodes.end());
+	}
+
+	//Deletes a node from the graph
+	void delete_node(iterator iter)
+	{
+		//If the node is nullptr, then nothing can be done
+		if (iter == end())
+		{
+			return;
+		}
+		//If the node is from a different graph, then nothing can be done
+		/*if (node->sourceGraph != this)
+		{
+			return;
+		}*/
+		//Looks over all the nodes in the graph and removes all connections that point to this node
+		for (auto n = begin(); n != end(); n++) {
+			if (n->has_connection_to(*iter)) {
+				n->remove_connection_to(*iter);
+			}
+		}
+		//Remove the node from the list of nodes
+
+		for (auto n = nodes.begin(); n != nodes.end(); n++) {
+			if (*n == *iter) {
+				nodes.erase(n);
+				return;
+			}
+		}
+	}
+
+	//Deletes a node from the graph by finding the node with the corresponding data
+	template<typename DataType>
+	void delete_node_by_value(DataType&& data)
+	{
+		//Find the node and attempt to delete it
+		delete_node(find_node_nonconst(std::forward<DataType>(data)));
+	}
+
+	//Finds a node in the graph with the corresponding data
+	//Returns nullptr if the node cannot be found
+	template<typename DataType>
+	iterator find_node_nonconst(DataType&& dataToFind)
+	{
+		//Look over all the nodes
+		for (auto i = nodes.begin(); i != nodes.end(); i++)
+		{
+			/*graph2<int> testGraph;
+
+			auto testNode = testGraph.find_node(123);
+
+			testNode->value*/
+			//If we found a node with the same data
+			if (i->value == dataToFind)
+			{
+				//Return a pointer to the node
+				return iterator(&nodes,i);
+			}
+		}
+		//Return a nullptr if a value was not found
+		return nullptr;
+	}
+
+	//Finds a node in the graph with the corresponding data
+	//Returns nullptr if the node cannot be found
+	template<typename DataType>
+	const_iterator find_node(DataType&& dataToFind) const
+	{
+		//Look over all the nodes
+		//for (auto& node : nodes)
+		for (auto i = nodes.begin(); i != nodes.end(); i++)
+		{
+			//If we found a node with the same data
+			if (i->value == dataToFind)
+			{
+				//Return a pointer to the node
+				return const_iterator(&nodes,i);
+			}
+		}
+		//Return a nullptr if a value was not found
+		return nullptr;
+	}
+
+	//Clears the graph of all nodes
+	void clear()
+	{
+		for (int i = size() - 1; i >= 0; i--) {
+			delete_node(begin());
+		}
+	}
+
+	//Prints the graph to the console
+	friend std::ostream& operator<<(std::ostream& stream, const node& node)
+	{
+		//Print the connections test
+		stream << "Connections -> {";
+
+
+		//If there are no connections
+		if (node.connections_size() == 0)
+		{
+			//Print a closing bracket and return
+			stream << "}";
+			return stream;
+		}
+
+		//Get the beginning of the connections list
+		auto begin = node.begin();
+		//Get the last VALID iterator of the connections list
+		auto end = --node.end();
+
+		//Loop over all the values in the list except the last
+		for (auto i = begin; i != end; i++)
+		{
+			//Print the value to the console
+			stream << i->getDestinationNode()->Value << ", ";
+		}
+
+		//Print the last value to the console and a closing bracket
+		stream << end->getDestinationNode()->Value << "}";
+
+		//Return the stream
+		return stream;
+	}
+};
+
+//Prints the graph to the console
+template<typename T>
+std::ostream& operator<<(std::ostream& stream, const graph2<T>& graph)
+{
+	//Loop over all the nodes in the graph
+	for (auto i = graph.begin(); i != graph.end(); i++)
+	{
+		const auto& node = *i;
+		//Print the node and node value to the console
+		stream << "Node {" << node.value << "}: " << node << "\n";
+	}
+
+	//Return the stream
+	return stream;
+}
 
 //Represents a weighted, directed graph. Nodes can be added to the graph, and they can be connected to each other
 //The graph is weighted, which means that connections/edges between nodes can have weights to them
 //The graph is directed, meaning that each node can have a one-way connection to other nodes
-template<typename T>
+/*template<typename T>
 class graph
 {
 public:
@@ -164,19 +707,19 @@ public:
 		}
 
 		//Adds a new connection to a node with the specified weight
-		//Throws an exception if there is already a connection to the neighbor node
-		//Throws an exception if you are trying to add a connection to itself
+		//Returns a null connection if there is already a connection to the neighbor node
+		//Returns a null connection  if you are trying to add a connection to itself
 		connection* add_connection(node* const neighbor, const unsigned int connectionWeight = 1)
 		{
 			//If there is already a connection to this neighbor, throw an exception
 			if (has_connection_to(neighbor))
 			{
-				throw struct_exception("There is already a connection to the node");
+				return nullptr;
 			}
 			//if you are trying to make a connection to itself, throw an exception
 			if (neighbor == this)
 			{
-				throw struct_exception("Cannot have a connection to itself");
+				return nullptr;
 			}
 			//Create a new connection
 			Connections.emplace_back(neighbor, this, connectionWeight);
@@ -240,6 +783,11 @@ public:
 			}
 			//Return false since no neighbor was found
 			return false;
+		}
+
+		bool has_connection_to(const node& neighbor) const
+		{
+			return has_connection_to(&neighbor);
 		}
 
 		//Returns the list of all connections
@@ -368,7 +916,7 @@ public:
 	node* add_node(DataType&& data)
 	{
 		//Construct a new node and add it to the nodes list
-		nodes.push_back(node(this, std::forward<DataType>(data)));
+		nodes.emplace_back(this, std::forward<DataType>(data));
 		//Return a pointer to the last element in the list
 		return &nodes.back();
 	}
@@ -502,4 +1050,4 @@ std::ostream& operator<<(std::ostream& stream, const graph<T>& graph)
 
 	//Return the stream
 	return stream;
-}
+}*/

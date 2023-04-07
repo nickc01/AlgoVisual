@@ -6,8 +6,8 @@
 #include <vector>
 
 //Runs a insertion sort algorithm on the iterator range with the specified comparer
-template<typename iteratorType, typename Comparer, typename Swapper = decltype(sorting_impl::DefaultSwapper<iteratorType>)>
-void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
+template<typename iteratorType, typename Comparer, typename Swapper = std::function<decltype(sorting_impl::DefaultSwapper<iteratorType>)>>
+void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer, Swapper&& swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
 	//Removes the reference from the type to make it a value type
 	using ValueType = typename std::remove_reference<iteratorType>::type;
@@ -37,11 +37,17 @@ void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Sw
 
 	for (auto i = begin; i != end; i++)
 	{
-		//If the current index value is lower than the pivot, it should go to the left
-		if (comparer(*i,*pivot))
+		//If we are currently on the pivot, then skip over it
+		if (i == pivot) {
+			continue;
+		}
+		//If the current index value is lower than or equal to the pivot, it should go to the left
+		if (comparer(*i,*pivot) || (!comparer(*i,*pivot) && !comparer(*pivot,*i)))
 		{
 			//Move the value to the left side of the array
-			swapper(lowEnd,i);
+			if (lowEnd != i) {
+				swapper(lowEnd,i);
+			}
 			//Increment the lower end iterator
 			++lowEnd;
 		}
@@ -49,13 +55,15 @@ void quick_sort(iteratorType&& begin, iteratorType&& end, Comparer& comparer, Sw
 
 	//Move the pivot to where the lower values end.
 	//At this point, all lower values should be left of the pivot, while greater values to the right of the pivot
-	swapper(lowEnd, pivot);
+	if (lowEnd != pivot) {
+		swapper(lowEnd, pivot);
+	}
 
 	//Quick sort the lower values
-	quick_sort(begin, lowEnd, comparer);
+	quick_sort(begin, lowEnd, comparer, swapper);
 	
 	//Quick sort the higher values
-	quick_sort(lowEnd, end, comparer);
+	quick_sort(lowEnd, end, comparer, swapper);
 }
 
 //Runs a insertion sort algorithm on the iterator range

@@ -143,23 +143,31 @@ TEST(QuickSortAlgorithm, Sort)
 {
 	//Create a starting list
 	linked_list<int> testList{};
-	testList.push_back(6523);
-	testList.push_back(2819);
-	testList.push_back(9302);
-	testList.push_back(43829);
-	testList.push_back(9201);
-	testList.push_back(3920);
-	testList.push_back(932);
+	testList.push_back(5);
+	testList.push_back(1);
+	testList.push_back(2);
+	testList.push_back(11);
+	testList.push_back(15);
+	testList.push_back(0);
+	testList.push_back(4);
+	testList.push_back(3);
+	testList.push_back(9);
+	testList.push_back(2);
+	testList.push_back(13);
 
 	//The same elements, but sorted
 	linked_list<int> sortedList{};
-	sortedList.push_back(932);
-	sortedList.push_back(2819);
-	sortedList.push_back(3920);
-	sortedList.push_back(6523);
-	sortedList.push_back(9201);
-	sortedList.push_back(9302);
-	sortedList.push_back(43829);
+	sortedList.push_back(5);
+	sortedList.push_back(1);
+	sortedList.push_back(2);
+	sortedList.push_back(11);
+	sortedList.push_back(15);
+	sortedList.push_back(0);
+	sortedList.push_back(4);
+	sortedList.push_back(3);
+	sortedList.push_back(9);
+	sortedList.push_back(2);
+	sortedList.push_back(13);
 
 	//Sort the list
 	quick_sort(testList);

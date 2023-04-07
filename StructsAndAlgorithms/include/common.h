@@ -25,7 +25,3 @@ namespace sorting_impl
 
 
 std::string version();
-
-long addUILock();
-bool removeUILock(long number);
-bool uiLocked();

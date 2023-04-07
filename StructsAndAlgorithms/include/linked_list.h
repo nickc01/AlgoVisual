@@ -5,6 +5,7 @@
 #include <common.h>
 #include <struct_exception.h>
 #include <functional>
+#include <utility>
 
 template<typename T>
 class linked_list {
@@ -413,7 +414,7 @@ public:
 		++size;
 		return node_iterator(last, this);
 	}
-
+	
 	bool pop_front()
 	{
 		if (first != nullptr)

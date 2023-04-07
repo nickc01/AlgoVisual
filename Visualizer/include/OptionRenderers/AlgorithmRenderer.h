@@ -1,18 +1,16 @@
 #pragma once
+#include "quick_sort.h"
+#include "visual_container.h"
 #include <options.h>
 #include <OptionRenderers/OptionRenderer.h>
 #include <functional>
 #include <linked_list.h>
 
+#define ALGORITHM(FUNC) FUNC<AlgorithmRenderer::iterType,AlgorithmRenderer::comparerType>
 
 class AlgorithmRenderer : public OptionRenderer {
 public:
-    static constexpr float CIRCLE_SIZE = 50;
-    static constexpr float CIRCLE_SPACING = 100;
-    static constexpr float INTERPOLATION_SPEED = 7;
-    static constexpr float TEXT_SIZE = 20;
-private:
-    struct visualValue {
+    /*struct valueContainer {
         float value;
         float x;
         float y;
@@ -20,23 +18,45 @@ private:
         float targetX;
         float targetY;
 
-        visualValue(float Value, float X, float Y) : value(Value), x(X), y(Y), targetX(X), targetY(Y) {}
-    };
-    //linked_list<float> numberList {1,9,3,6,2,8,5,7,2,};
-    linked_list<visualValue> numberList;
+        valueContainer(float Value, float X, float Y) : value(Value), x(X), y(Y), targetX(X), targetY(Y) {}
+    };*/
+
+    static constexpr bool visualValueComparer(const visual_container<float>& a, const visual_container<float>& b) {
+        return a.value < b.value;
+    }
+
+private:
+    linked_list<visual_container<float>> numberList;
     std::string _name;
+    std::string _description;
     float selectedNumber;
 
-    void push_front();
-    void push_end();
+    void push_front(float value);
+    void push_back(float value);
 
+    void pop_front();
+    void pop_back();
+
+    void pop(float value);
+
+    void clear();
+
+    void shuffle();
+    
     void createStarterList();
+
+    void swap(decltype(numberList.begin())& a, decltype(numberList.begin())& b);
 public:
-    using SortType = std::function<void(linked_list<float>&)>;
+    using iterType = decltype(numberList.begin());
+    using valueType = decltype(*numberList.begin());
+    using comparerType = std::function<decltype(visualValueComparer)>;
+    using AlgoType = std::function<decltype(ALGORITHM(quick_sort))>;
+    AlgoType algorithmFunc;
 
-    SortType sortFunc;
-
-    AlgorithmRenderer(std::string name, SortType&& sort);
+    template<typename A = std::string&, typename B = std::string&>
+    AlgorithmRenderer(A name, B description, AlgoType&& algorithm) : OptionRenderer(), _name(std::forward<A>(name)), _description(std::forward<B>(description)), algorithmFunc(std::move(algorithm)) {
+        createStarterList();
+    }
 
     void update(double dt) override;
 
