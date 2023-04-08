@@ -185,7 +185,7 @@ public:
 	}
 
 	bool remove_connection_to(node_iter node) {
-		remove_connection_to(*node);
+		return remove_connection_to(*node);
 	}
 
 	void remove_all_connections() {
@@ -774,7 +774,7 @@ public:
 	//Finds a node in the graph with the corresponding data
 	//Returns nullptr if the node cannot be found
 	template<typename DataType>
-	iterator find_node_nonconst(DataType&& dataToFind)
+	iterator find_node(DataType&& dataToFind)
 	{
 		//Look over all the nodes
 		for (auto i = nodes.begin(); i != nodes.end(); i++)
@@ -807,6 +807,48 @@ public:
 		{
 			//If we found a node with the same data
 			if (i->value == dataToFind)
+			{
+				//Return a pointer to the node
+				//return const_iterator(&nodes,i);
+				return i;
+			}
+		}
+		//Return a nullptr if a value was not found
+		return end();
+	}
+
+	//Finds a node in the graph with the corresponding data
+	//Returns nullptr if the node cannot be found
+	const_iterator find_node_by(std::function<bool(const T&)>&& delegate) const
+	{
+		//Look over all the nodes
+		//for (auto& node : nodes)
+		for (auto i = nodes.begin(); i != nodes.end(); i++)
+		{
+			//If we found a node with the same data
+			//if (i->value == dataToFind)
+			if (delegate(i->value))
+			{
+				//Return a pointer to the node
+				//return const_iterator(&nodes,i);
+				return i;
+			}
+		}
+		//Return a nullptr if a value was not found
+		return end();
+	}
+
+	//Finds a node in the graph with the corresponding data
+	//Returns nullptr if the node cannot be found
+	iterator find_node_by(std::function<bool(const T&)>&& delegate)
+	{
+		//Look over all the nodes
+		//for (auto& node : nodes)
+		for (auto i = nodes.begin(); i != nodes.end(); i++)
+		{
+			//If we found a node with the same data
+			//if (i->value == dataToFind)
+			if (delegate(i->value))
 			{
 				//Return a pointer to the node
 				//return const_iterator(&nodes,i);

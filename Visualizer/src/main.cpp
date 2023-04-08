@@ -202,27 +202,6 @@ void createRenderers() {
 	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Bubble Sort", std::move(bubble_sort_desc), ALGORITHM(bubble_sort)));
 	optionRenderers.emplace_back(std::make_shared<BinarySearchTreeRenderer>());
 	optionRenderers.emplace_back(std::make_shared<GraphRenderer>());
-
-	//auto f = ALGORITHM(quick_sort);
-
-	//auto comparer = std::function<decltype(AlgorithmRenderer::visualValueComparer)>{AlgorithmRenderer::visualValueComparer};
-
-	//f(test.begin(),test.end(),std::function<decltype(AlgorithmRenderer::visualValueComparer)>(AlgorithmRenderer::visualValueComparer),[](AlgorithmRenderer::iterType& a, AlgorithmRenderer::iterType& b){});
-
-	//auto testRend = dynamic_cast<AlgorithmRenderer*>(optionRenderers[0].get());
-
-	//testRend->algorithmFunc(test.begin(),test.end(),std::function<decltype(AlgorithmRenderer::visualValueComparer)>(AlgorithmRenderer::visualValueComparer),[](AlgorithmRenderer::iterType& a, AlgorithmRenderer::iterType& b){});
-	//auto testVar = std::function<decltype(ALGORITHM(quick_sort))>{ALGORITHM(quick_sort)};
-
-	//testVar(test.begin(),test.end(),sorting_impl::DefaultComparer<AlgorithmRenderer::valueContainer>,sorting_impl::DefaultSwapper<decltype(test.begin())>);
-
-	/*optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Insertion Sort", [](arrayType& list) {
-		insertion_sort_list(list);
-		}));
-
-	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Bubble Sort", [](arrayType& list) {
-		bubble_sort_list(list);
-		}));*/
 }
 
 void cleanup()

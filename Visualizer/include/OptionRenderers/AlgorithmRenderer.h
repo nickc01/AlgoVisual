@@ -30,6 +30,7 @@ private:
     std::string _name;
     std::string _description;
     float selectedNumber = 0.0;
+    float beforeNumber = 0.0;
 
     void push_front(float value);
     void push_back(float value);

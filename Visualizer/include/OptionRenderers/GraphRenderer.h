@@ -14,7 +14,16 @@ class GraphRenderer : public OptionRenderer {
     int mouseY;
     visual_container<float>* selectedNode = nullptr;
 
+    float selectedNumber = 0;
+    float connectionNumber = 0;
+
     void createStarterList();
+
+    void push(float value);
+    void pop(float value);
+    void clear();
+    void connect(float value);
+    void disconnect(float value);
 public:
 
     void update(double dt) override;

@@ -1,5 +1,7 @@
 #include "OptionRenderers/OptionRenderer.h"
+#include "imgui.h"
 #include "raymath.h"
+#include "visual_container.h"
 #include <OptionRenderers/GraphRenderer.h>
 #include <array>
 
@@ -100,6 +102,88 @@ void GraphRenderer::render() {
         auto textPos = transformPosition(node.x - (textWidth / 2), node.y - (TEXT_SIZE / 2));
 
         DrawTextEx(GetFontDefault(), str.c_str(), textPos, TEXT_SIZE / scale, (TEXT_SIZE / scale) / 10.0, WHITE);
+    }
+
+    ImGui::InputFloat("Number",&selectedNumber);
+    if (ImGui::Button("Add Number")) {
+        push(selectedNumber);
+    }
+
+    if (ImGui::Button("Remove Number")) {
+        pop(selectedNumber);
+    }
+
+    if (ImGui::Button("Remove Number")) {
+        pop(selectedNumber);
+    }
+
+    if (ImGui::Button("Add Random Number")) {
+        push((rand() % 2000) - 1000);
+    }
+
+    if (ImGui::Button("Clear")) {
+        clear();
+    }
+
+    if (selectedNode != nullptr) {
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        ImGui::InputFloat("Connect",&connectionNumber);
+        if (ImGui::Button("Connect To Number")) {
+        connect(selectedNumber);
+    }
+
+    if (ImGui::Button("Disconnect from Number")) {
+        disconnect(selectedNumber);
+    }
+    }
+}
+
+void GraphRenderer::push(float value) {
+    numberGraph.add_node(visual_container<float>(value));
+}
+void GraphRenderer::pop(float value) {
+    auto result = numberGraph.find_node_by([value](auto v){ return v.value == value;});
+
+    if (result != numberGraph.end()) {
+        numberGraph.delete_node(result);
+        return;
+    }
+    /*for (auto i = numberGraph.begin(); i != numberGraph.end(); i++) {
+        if (i->value.value == selectedNode->value) {
+            numberGraph.delete_node(i);
+            return;
+        }
+    }*/
+}
+void GraphRenderer::clear() {
+    numberGraph.clear();
+}
+void GraphRenderer::connect(float value) {
+    if (selectedNode == nullptr) {
+        return;
+    }
+
+    auto sourceNode = numberGraph.find_node(*selectedNode);
+    auto destination = numberGraph.find_node_by([&](auto v){ return v.value == connectionNumber; });
+
+    if (destination != numberGraph.end()) {
+        sourceNode->add_connection_to(destination);
+    }
+}
+void GraphRenderer::disconnect(float value) {
+    if (selectedNode == nullptr) {
+        return;
+    }
+
+    auto sourceNode = numberGraph.find_node(*selectedNode);
+    auto destination = numberGraph.find_node_by([&](auto v){ return v.value == connectionNumber; });
+
+    if (destination != numberGraph.end()) {
+        sourceNode->remove_connection_to(destination);
     }
 }
 

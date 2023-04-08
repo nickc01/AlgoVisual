@@ -68,6 +68,48 @@ void AlgorithmRenderer::render() {
                 #endif
             });
         }
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        ImGui::InputFloat("Before Number",&beforeNumber);
+
+        if (ImGui::Button("Insert Number Before Number")) {
+            for (auto node = numberList.begin(); node != numberList.end(); node++) {
+                if (node->value == beforeNumber) {
+                    auto newNode = numberList.insert(selectedNumber,node);
+                    if (newNode == numberList.begin()) {
+                        auto next = ++numberList.begin();
+                        newNode->x = next->targetX;
+                        newNode->targetX = next->targetX - CIRCLE_SPACING;
+                        newNode->targetY = next->targetY;
+                    }
+                    else {
+                        auto previous = newNode;
+                        --previous;
+                        newNode->x = previous->targetX;
+                        newNode->targetX = previous->targetX + CIRCLE_SPACING;
+                        newNode->targetY = previous->targetY;
+                        for (auto j = ++newNode; j != numberList.end(); j++) {
+                            j->targetX += CIRCLE_SPACING;
+                        }
+                    }
+                    break;
+                }
+            }
+            //push_front(selectedNumber);
+        }
+
     }
     else {
         if (ImGui::Button("Stop Sorting")) {
