@@ -25,7 +25,7 @@ class BinarySearchTreeRenderer : public OptionRenderer {
     void moveNodeAndChildren(decltype(tree)::iterator node, float diffX, float diffY);
     void setNodeAndChildrenPos(decltype(tree)::iterator node, float newX, float newY);
 
-    float selectedNumber;
+    float selectedNumber = 0.0;
     bool selfBalancing = true;
 
 

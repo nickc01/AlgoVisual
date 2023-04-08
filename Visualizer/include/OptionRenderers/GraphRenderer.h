@@ -4,8 +4,15 @@
 #include <graph.h>
 
 class GraphRenderer : public OptionRenderer {
-    static constexpr float CIRCLE_SIZE = 200;
-    graph2<visual_container<float>> numberGraph;
+    static constexpr float NODE_ANGLE_SIZE = 500;
+    graph2<visual_container<float>> numberGraph{};
+
+    bool mouseDown = false;
+    bool movingNode = false;
+    //Vector2 mousePosition{};
+    int mouseX;
+    int mouseY;
+    visual_container<float>* selectedNode = nullptr;
 
     void createStarterList();
 public:

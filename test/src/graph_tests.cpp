@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 //Creates a testing graph
-graph2<int> CreateTestGraph()
+graph2<int> createGraph()
 {
 	graph2<int> testGraph;
 	//Create a starting node
@@ -14,17 +14,18 @@ graph2<int> CreateTestGraph()
 	auto secondNode = testGraph.add_node(5);
 
 	//Create a one-way connection from the first node to the second node with a weight of 1
-
 	firstNode->add_connection_to(secondNode);
 
 	auto onehundredNode = testGraph.add_node(100);
+	secondNode->add_connection_to(onehundredNode);
+
 	auto twohundredNode = testGraph.add_node(200);
+	secondNode->add_connection_to(twohundredNode);
+
 	auto threehundredNode = testGraph.add_node(300);
+	secondNode->add_connection_to(threehundredNode);
 
 	//Add three new nodes that are one-way connected to the second node
-	secondNode->add_connection_to(onehundredNode);
-	secondNode->add_connection_to(twohundredNode);
-	secondNode->add_connection_to(threehundredNode);
 
 	//Return the test graph
 	return testGraph;
@@ -33,19 +34,19 @@ graph2<int> CreateTestGraph()
 TEST(GraphTests, CopyConstructorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Create a copy of the graph
 	graph2<int> copy{ testGraph };
 
 	//Test if the graphs are equal
-	ASSERT_TRUE(testGraph == copy);
+	ASSERT_EQ(testGraph, copy);
 }
 
 TEST(GraphTests, MoveConstructorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Create a new graph by moving the existing graph
 	graph2<int> move{ std::move(testGraph) };
@@ -57,7 +58,7 @@ TEST(GraphTests, MoveConstructorTest)
 TEST(GraphTests, CopyAssignmentTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Create a copy of the graph
 	graph2<int> copy = testGraph;
@@ -69,7 +70,7 @@ TEST(GraphTests, CopyAssignmentTest)
 TEST(GraphTests, MoveAssignmentTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Create a new graph by moving the existing graph
 	graph2<int> move = std::move(testGraph);
@@ -81,31 +82,31 @@ TEST(GraphTests, MoveAssignmentTest)
 TEST(GraphTests, AddNodeTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Add a new node with the number 234
 	testGraph.add_node(234);
 
 	//See if the node "234" has been added
-	ASSERT_TRUE(testGraph.find_node(234) != nullptr);
+	ASSERT_NE(testGraph.find_node(234), testGraph.end());
 }
 
 TEST(GraphTests, DeleteNodeTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Delete the node with the value "200" from the list
 	testGraph.delete_node_by_value(200);
 
 	//Test if the node has been removed
-	ASSERT_TRUE(testGraph.find_node(200) == nullptr);
+	ASSERT_EQ(testGraph.find_node(200), testGraph.end());
 }
 
 TEST(GraphTests, IteratorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Store the amount of nodes in the graph
 	std::list<graph2<int>::node*> storageList;
@@ -119,13 +120,13 @@ TEST(GraphTests, IteratorTest)
 	}
 
 	//Test if the storage list size and the test graph size is equal
-	ASSERT_TRUE(storageList.size() == testGraph.size());
+	ASSERT_EQ(storageList.size(), testGraph.size());
 }
 
 TEST(GraphTests, ConstIteratorTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = CreateTestGraph();
+	const graph2<int> testGraph = createGraph();
 
 	//Store the amount of nodes in the graph
 	std::list<const graph2<int>::node*> storageList;
@@ -138,59 +139,59 @@ TEST(GraphTests, ConstIteratorTest)
 	}
 
 	//Test if the storage list size and the test graph size is equal
-	ASSERT_TRUE(storageList.size() == testGraph.size());
+	ASSERT_EQ(storageList.size(), testGraph.size());
 }
 
 TEST(GraphTests, FindTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = CreateTestGraph();
+	const graph2<int> testGraph = createGraph();
 
 	//Test if the node "200" exists in the graph
-	ASSERT_TRUE(testGraph.find_node(200) != nullptr);
+	ASSERT_NE(testGraph.find_node(200), testGraph.end());
 }
 
 TEST(GraphTests, ClearTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = CreateTestGraph();
+	graph2<int> testGraph = createGraph();
 
 	//Clear the graph
 	testGraph.clear();
 
 	//Check if the nodes list has no nodes
-	ASSERT_TRUE(testGraph.size() == 0);
+	ASSERT_EQ(testGraph.size(), 0);
 }
 
 TEST(GraphTests, SizeTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = CreateTestGraph();
+	const graph2<int> testGraph = createGraph();
 
 	//Test if there are 5 nodes in the graph
-	ASSERT_TRUE(testGraph.size() == 5);
+	ASSERT_EQ(testGraph.size(), 5);
 }
 
 TEST(GraphTests, EqualityTest)
 {
 	//Create a test graph
-	const graph2<int> a = CreateTestGraph();
+	const graph2<int> a = createGraph();
 	//Create a second test graph
-	const graph2<int> b = CreateTestGraph();
+	const graph2<int> b = createGraph();
 
 	//Test if they are equal
-	ASSERT_TRUE(a == b);
+	ASSERT_EQ(a, b);
 }
 
 TEST(GraphTests, NonEqualityTest)
 {
 	//Create a test graph
-	const graph2<int> a = CreateTestGraph();
+	const graph2<int> a = createGraph();
 	//Create an empty graph
 	const graph2<int> b;
 
 	//Test if they are non-equal
-	ASSERT_TRUE(a != b);
+	ASSERT_NE(a, b);
 }
 
 TEST(GraphTests, PrintTest)
@@ -199,7 +200,7 @@ TEST(GraphTests, PrintTest)
 	std::stringstream stream;
 
 	//Create a test graph
-	const graph2<int> a = CreateTestGraph();
+	const graph2<int> a = createGraph();
 
 	//Print to the stream
 	stream << a;
@@ -208,5 +209,5 @@ TEST(GraphTests, PrintTest)
 	auto str = stream.str();
 
 	//Check if the string is equal to the expected output
-	ASSERT_TRUE(str == "Node {0}: Connections -> {5}\nNode {5}: Connections -> {100, 200, 300}\nNode {100}: Connections -> {}\nNode {200}: Connections -> {}\nNode {300}: Connections -> {}\n");
+	ASSERT_EQ(str, "Node {0}: Connections -> {5}\nNode {5}: Connections -> {100, 200, 300}\nNode {100}: Connections -> {}\nNode {200}: Connections -> {}\nNode {300}: Connections -> {}\n");
 }

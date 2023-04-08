@@ -6,7 +6,9 @@
 #include "visual_container.h"
 #include <OptionRenderers/BinarySearchTreeRenderer.h>
 
-std::string _name = "Binary Search Tree";
+namespace {
+    std::string _name = "Binary Search Tree";
+}
 
 BinarySearchTreeRenderer::BinarySearchTreeRenderer() : OptionRenderer() {
     createStarterList();
@@ -76,6 +78,7 @@ void BinarySearchTreeRenderer::renderNodeLines(decltype(tree)::iterator node) {
         return;
     }
     auto nodePos = transformPosition(node->x, node->y);
+
     if (node.getParent() != tree.end()) {
         auto parent = node.getParent();
         auto parentPos = transformPosition(parent->x, parent->y);

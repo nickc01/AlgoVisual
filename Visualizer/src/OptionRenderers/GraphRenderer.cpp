@@ -3,8 +3,9 @@
 #include <OptionRenderers/GraphRenderer.h>
 #include <array>
 
-
-std::string _name = "Graph";
+namespace {
+    std::string _name = "Graph";
+}
 
 GraphRenderer::GraphRenderer() : OptionRenderer() {
     createStarterList();
@@ -14,15 +15,91 @@ GraphRenderer::GraphRenderer() : OptionRenderer() {
 void GraphRenderer::update(double dt) {
 
     for (auto& value : numberGraph) {
-        //value.Value.x = Lerp(value.Value.x, value.Value.targetX, INTERPOLATION_SPEED * dt);
-        //value.Value.y = Lerp(value.Value.y, value.Value.targetY, INTERPOLATION_SPEED * dt);
+        value.value.x = Lerp(value.value.x, value.value.targetX, INTERPOLATION_SPEED * dt);
+        value.value.y = Lerp(value.value.y, value.value.targetY, INTERPOLATION_SPEED * dt);
     }
-    OptionRenderer::update(dt);
+
+    if (!mouseDown) {
+        if (IsMouseButtonPressed(0)) {
+            mouseDown = true;
+            mouseX = GetMouseX();
+            mouseY = GetMouseY();
+
+            Vector2 mouseWorldPos{};
+            mouseWorldPos.x = GetMouseX();
+            mouseWorldPos.y = GetMouseY();
+            for (auto& node : numberGraph) {
+                auto nodePos = transformPosition(node.value.x,node.value.y);
+                if (Vector2Distance(mouseWorldPos, nodePos) <= (CIRCLE_SIZE / scale)) {
+                    selectedNode = &node.value;
+                    movingNode = true;
+                    break;
+                }
+            }
+        }
+    }
+    else {
+
+        auto newMouseX = GetMouseX();
+        auto newMouseY = GetMouseY();
+        //auto newMousePosition = transformPosition(GetMouseX(), GetMouseY());
+         
+        Vector2 mouseDelta{};
+        mouseDelta.x = (newMouseX - mouseX) * scale;
+        mouseDelta.y = (newMouseY - mouseY) * scale;
+        //auto mouseDelta = transformMouseDelta(newMouseX - mouseX, newMouseY - mouseY);
+
+        if (movingNode && selectedNode != nullptr) {
+            //selectedNode->targetX = 
+            selectedNode->targetX += mouseDelta.x;
+            selectedNode->targetY += mouseDelta.y;
+        }
+
+        //mousePosition = newMousePosition;
+        mouseX = newMouseX;
+        mouseY = newMouseY;
+
+        if (IsMouseButtonReleased(0)) {
+            mouseDown = false;
+            movingNode = false;
+        }
+    }
+
+    if (!movingNode) {
+        OptionRenderer::update(dt);
+    }
 }
 
 void GraphRenderer::render() {
+    //Draw lines firsts
     for (auto i = numberGraph.begin(); i != numberGraph.end(); i++) {
+        auto& node = i->value;
+        auto circlePos = transformPosition(node.x, node.y);
 
+        for (auto& connection : *i) {
+            auto connectionPos = transformPosition(connection.value.x, connection.value.y);
+            DrawLineEx(circlePos, connectionPos, 20 / scale, ORANGE);
+        }
+    }
+
+    //Draw node circles
+    for (auto i = numberGraph.begin(); i != numberGraph.end(); i++) {
+        auto& node = i->value;
+        auto circlePos = transformPosition(node.x, node.y);
+
+        if (selectedNode == &node) {
+            DrawCircle(circlePos.x, circlePos.y, (CIRCLE_SIZE + 10) / scale, BLACK);
+        }
+
+        DrawCircle(circlePos.x, circlePos.y, CIRCLE_SIZE / scale, RED);
+
+        auto str = std::to_string(node.value);
+
+        float textWidth = MeasureText(str.c_str(), TEXT_SIZE);
+
+        auto textPos = transformPosition(node.x - (textWidth / 2), node.y - (TEXT_SIZE / 2));
+
+        DrawTextEx(GetFontDefault(), str.c_str(), textPos, TEXT_SIZE / scale, (TEXT_SIZE / scale) / 10.0, WHITE);
     }
 }
 
@@ -38,7 +115,7 @@ void GraphRenderer::createStarterList() {
         if (counter >= numbersToAdd.size()) {
             break;
         }
-        numberGraph.add_node(visual_container<float>(numbersToAdd[counter],cos(angle) * CIRCLE_SIZE,sin(angle) * CIRCLE_SIZE));
+        numberGraph.add_node(visual_container<float>(numbersToAdd[counter],cos(angle) * NODE_ANGLE_SIZE,sin(angle) * NODE_ANGLE_SIZE));
 
         counter++;
     }
@@ -50,6 +127,7 @@ void GraphRenderer::createStarterList() {
             }
             if (rand() % 100 > 80) {
                 //i->add_connection(j);
+                i->add_connection_to(j);
             }
         }
     }

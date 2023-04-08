@@ -157,17 +157,17 @@ TEST(QuickSortAlgorithm, Sort)
 
 	//The same elements, but sorted
 	linked_list<int> sortedList{};
-	sortedList.push_back(5);
+	sortedList.push_back(0);
 	sortedList.push_back(1);
 	sortedList.push_back(2);
-	sortedList.push_back(11);
-	sortedList.push_back(15);
-	sortedList.push_back(0);
-	sortedList.push_back(4);
-	sortedList.push_back(3);
-	sortedList.push_back(9);
 	sortedList.push_back(2);
+	sortedList.push_back(3);
+	sortedList.push_back(4);
+	sortedList.push_back(5);
+	sortedList.push_back(9);
+	sortedList.push_back(11);
 	sortedList.push_back(13);
+	sortedList.push_back(15);
 
 	//Sort the list
 	quick_sort(testList);

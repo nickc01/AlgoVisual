@@ -3,18 +3,7 @@
 #include <string>
 
 class OptionRenderer {
-protected:
-    float scale;
-    float cam_x;
-    float cam_y;
-
-    bool mouseHeld = false;
-    int lastMousePosX;
-    int lastMousePosY;
 public:
-    float dest_scale;
-    float dest_cam_x;
-    float dest_cam_y;
     static constexpr float MIN_SCALE = 0.25;
     static constexpr float MAX_SCALE = 5.0;
     static constexpr float SCALE_LERP_SPEED = 7;
@@ -27,6 +16,18 @@ public:
     static constexpr float CIRCLE_SPACING = 100;
     static constexpr float INTERPOLATION_SPEED = 7;
     static constexpr float TEXT_SIZE = 15;
+protected:
+    float scale = 1;
+    float cam_x = 0;
+    float cam_y = 0;
+
+    bool mouseHeld = false;
+    int lastMousePosX = 0;
+    int lastMousePosY = 0;
+public:
+    float dest_scale = 1;
+    float dest_cam_x = 0;
+    float dest_cam_y = 0;
 
 
 
@@ -39,4 +40,6 @@ public:
     virtual const std::string& getName() const = 0;
 
     Vector2 transformPosition(float x, float y) const;
+
+    Vector2 transformMouseDelta(float diffX, float diffY) const;
 };

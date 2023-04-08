@@ -29,7 +29,7 @@ private:
     linked_list<visual_container<float>> numberList;
     std::string _name;
     std::string _description;
-    float selectedNumber;
+    float selectedNumber = 0.0;
 
     void push_front(float value);
     void push_back(float value);

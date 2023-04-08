@@ -25,11 +25,19 @@ public:
 			next(nextPtr),
 			prev(prevPtr) {}
 
+		template<typename... Args>
+		node(std::pair<node*, node*> ptrs, Args&&... args) :
+			value(std::forward<Args>(args)...),
+			next(ptrs.first),
+			prev(ptrs.second) {}
+
 		node() = default;
 	};
 
 	template<bool is_const>
 	class node_iterator_base {
+
+		friend node_iterator_base<!is_const>;
 
 		using node_type = make_const_if_true<node, is_const>;
 		using list_type = make_const_if_true<linked_list<T>, is_const>;
@@ -164,12 +172,14 @@ public:
 		}
 
 		//Tests for equality
-		bool operator==(const node_iterator_base<is_const>& rhs) const
+		template <bool other_const>
+		bool operator==(const node_iterator_base<other_const>& rhs) const
 		{
 			return rhs._node == _node && rhs._list == _list;
 		}
 		//Tests for inequality
-		bool operator!=(const node_iterator_base<is_const>& rhs) const
+		template <bool other_const>
+		bool operator!=(const node_iterator_base<other_const>& rhs) const
 		{
 			return rhs._node != _node || rhs._list != _list;
 		}
@@ -177,6 +187,9 @@ public:
 
 	using const_node_iterator = node_iterator_base<true>;
 	using node_iterator = node_iterator_base<false>;
+
+	using iterator = node_iterator;
+	using const_iterator = const_node_iterator;
 
 private:
 	node* first = nullptr;
@@ -400,6 +413,44 @@ public:
 	node_iterator push_back(T&& value)
 	{
 		node* newNode = new node(std::move(value), nullptr, last);
+		if (last != nullptr)
+		{
+			last->next = newNode;
+		}
+
+		if (first == nullptr)
+		{
+			first = newNode;
+		}
+
+		last = newNode;
+		++size;
+		return node_iterator(last, this);
+	}
+
+	template<typename... Args>
+	node_iterator emplace_front(T&& arguments...)
+	{
+		node* newNode = new node(std::make_pair(first, nullptr), std::forward<Args>(arguments)...);
+		if (first != nullptr)
+		{
+			first->prev = newNode;
+		}
+
+		if (last == nullptr)
+		{
+			last = newNode;
+		}
+
+		first = newNode;
+		++size;
+		return node_iterator(first, this);
+	}
+
+	template<typename... Args>
+	node_iterator emplace_back(Args&& ...arguments)
+	{
+		node* newNode = new node(std::make_pair(nullptr, last), std::forward<Args>(arguments)...);
 		if (last != nullptr)
 		{
 			last->next = newNode;

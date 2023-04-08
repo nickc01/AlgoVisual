@@ -8,7 +8,7 @@ int windowSizeY();
 
 
 
-bool beginSort(std::function<void()> sortFunc);
+bool beginSort(std::function<void()>&& sortFunc);
 
 bool endSort();
 

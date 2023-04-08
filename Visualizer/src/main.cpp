@@ -21,6 +21,7 @@
 #include <insertion_sort.h>
 #include <bubble_sort.h>
 #include <global.h>
+#include <OptionRenderers/GraphRenderer.h>
 
 using namespace std;
 
@@ -200,6 +201,7 @@ void createRenderers() {
 	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Insertion Sort", std::move(insertion_sort_desc), ALGORITHM(insertion_sort)));
 	optionRenderers.emplace_back(std::make_shared<AlgorithmRenderer>("Bubble Sort", std::move(bubble_sort_desc), ALGORITHM(bubble_sort)));
 	optionRenderers.emplace_back(std::make_shared<BinarySearchTreeRenderer>());
+	optionRenderers.emplace_back(std::make_shared<GraphRenderer>());
 
 	//auto f = ALGORITHM(quick_sort);
 

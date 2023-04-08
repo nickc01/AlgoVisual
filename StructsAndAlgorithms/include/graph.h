@@ -5,11 +5,286 @@
 #include <ostream>
 #include <struct_exception.h>
 #include <unordered_set>
+#include <linked_list.h>
+
+template<typename T>
+class graph2;
+
+template<typename T>
+class graph_node {
+
+	friend class graph2<T>;
+
+	linked_list<graph_node*> connections;
+
+	using node_iter = typename linked_list<graph_node<T>>::iterator;
+	using const_node_iter = typename linked_list<graph_node<T>>::const_iterator;
+public:
+	template<bool is_const>
+	class connection_iterator_base {
+		make_const_if_true<linked_list<graph_node*>, is_const>* connections = nullptr;
+		decltype(connections->begin()) iter;
+
+	public:
+		using value_type = make_const_if_true<graph_node, is_const>;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type = int;
+
+		connection_iterator_base() : connections(), iter() {}
+
+		connection_iterator_base(decltype(connections) _connections, decltype(iter) _iter) : connections(_connections), iter(_iter) {}
+
+		template<bool other_const>
+		connection_iterator_base(const connection_iterator_base<other_const>& other) : connections(other.connections), iter(other.iter) {}
+
+		template<bool other_const>
+		connection_iterator_base(connection_iterator_base<other_const>&& other) noexcept : connections(std::move(other.connections)), iter(std::move(other.iter)) {}
+
+		connection_iterator_base<is_const>& operator++()
+		{
+			++iter;
+			return *this;
+		}
+
+		connection_iterator_base<is_const> operator++(int)
+		{
+			connection_iterator_base<is_const> previous = *this;
+
+			this->operator++();
+
+			return previous;
+		}
+
+		const value_type& operator*() const
+		{
+			//Return a reference to the value
+			return *(*iter);
+		}
+		//Used for dereferencing the value
+		const pointer operator->() const
+		{
+			//Return a pointer to the value
+			return *iter;
+		}
+
+		value_type& operator*()
+		{
+			//Return a reference to the value
+			return **iter;
+		}
+		//Used for dereferencing the value
+		pointer operator->()
+		{
+			//Return a pointer to the value
+			return *iter;
+		}
+
+		//Tests for inequality
+		bool operator!=(const connection_iterator_base<is_const>& rhs) const
+		{
+
+			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
+			// 
+			// 
+
+			/*if (connections->getSize() != rhs.connections->getSize())
+			{
+				return true;
+			}
+
+			auto rhsBegin = rhs.connections->begin();
+
+			for (auto i = connections->begin(); i != connections->end(); i++) {
+				if (i->value != rhsBegin->value) {
+					return true;
+				}
+				++rhsBegin;
+			}
+
+			return false;*/
+			
+			//for (auto i = )
+
+			return connections != rhs.connections || iter != rhs.iter;
+		}
+
+		//Tests for equality
+		bool operator==(const connection_iterator_base<is_const>& rhs) const
+		{
+			/*if (connections->getSize() != rhs.connections->getSize())
+			{
+				return false;
+			}
+
+			auto rhsBegin = rhs.connections->begin();
+
+			for (auto i = connections->begin(); i != connections->end(); i++) {
+				if (i->value != rhsBegin->value) {
+					return false;
+				}
+				++rhsBegin;
+			}
+
+			return true;*/
+			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
+			return connections == rhs.connections && iter == rhs.iter;
+		}
+
+		//A copy assignment operator used for assigning a non-const iterator to a const version
+		template<bool other_const = is_const>
+		connection_iterator_base<is_const>& operator=(const connection_iterator_base<other_const>& other) noexcept
+		{
+			connections = other.connections;
+			iter = other.iter;
+			return *this;
+		}
+
+		//A move assignment operator used for assigning a non-const iterator to a const version
+		template<bool other_const = is_const>
+		connection_iterator_base<is_const>& operator=(connection_iterator_base<other_const>&& other) noexcept
+		{
+			connections = std::move(other.connections);
+			iter = std::move(other.iter);
+			return *this;
+		}
+	};
+
+	using iterator = connection_iterator_base<false>;
+	using const_iterator = connection_iterator_base<true>;
+
+	T value;
+
+	graph_node() = delete;
+
+	template <typename ValueType>
+	graph_node(ValueType&& _value) : value(std::forward<ValueType>(_value)) {}
+
+	bool add_connection_to(graph_node<T>& node) {
+		return connections.emplace_back(&node) != connections.end();
+	}
+
+	bool add_connection_to(node_iter node) {
+		return add_connection_to(*node);
+	}
+
+	bool remove_connection_to(const graph_node<T>& node) {
+		auto result = connections.end();
+		for (auto i = connections.begin(); i != connections.end(); i++) {
+			if (*i == &node) {
+				result = i;
+			}
+		}
+		//auto result = connections.find(&graph_node);
+		if (result != connections.end()) {
+			connections.pop_element(result);
+			return true;
+		}
+		return false;
+	}
+
+	bool remove_connection_to(node_iter node) {
+		remove_connection_to(*node);
+	}
+
+	void remove_all_connections() {
+		connections.clear();
+	}
+
+	bool has_connection_to(const graph_node<T>& node) const {
+		for (auto i = connections.begin(); i != connections.end(); i++) {
+			if (*i == &node) {
+				return true;
+			}
+		}
+		return false;
+		//return connections.find(&graph_node) != connections.end();
+	}
+
+	bool has_connection_to(node_iter node) {
+		return has_connection_to(*node);
+	}
+
+	bool has_connection_to(const_node_iter node) const {
+		return has_connection_to(*node);
+	}
+
+	int connections_size() const {
+		return connections.getSize();
+	}
+
+	//Returns the start of the graph_node list
+	auto begin()
+	{
+		return iterator(&connections, connections.begin());
+	}
+
+	//Returns the start of the graph_node list
+	auto cbegin() const
+	{
+		return const_iterator(&connections, connections.cbegin());
+	}
+
+	//Returns the start of the graph_node list
+	auto begin() const
+	{
+		return cbegin();
+	}
+
+	//Returns the end of the graph_node list
+	auto end()
+	{
+		return iterator(&connections, connections.end());
+	}
+
+	//Returns the end of the graph_node list
+	auto cend() const
+	{
+		return const_iterator(&connections, connections.cend());
+	}
+
+	//Returns the end of the graph_node list
+	auto end() const
+	{
+		return cend();
+	}
+
+	bool operator!=(const graph_node<T>& rhs) const
+	{
+		//return rhs.nodePtr != nodePtr || rhs.tree != tree;
+		//return connections != rhs.connections || value != rhs.value;
+
+		return !(*this == rhs);
+	}
+
+	bool operator==(const graph_node<T>& rhs) const
+	{
+		//return rhs.nodePtr == nodePtr && rhs.tree == tree;
+		//return connections == rhs.connections && value == rhs.value;
+
+		if (connections.getSize() != rhs.connections.getSize())
+		{
+			return false;
+		}
+
+		auto rhsBegin = rhs.connections.begin();
+
+		for (auto i = connections.begin(); i != connections.end(); i++) {
+			if ((*i)->value != (*rhsBegin)->value) {
+				return false;
+			}
+			++rhsBegin;
+		}
+
+		return value == rhs.value;
+	}
+};
 
 template<typename T>
 class graph2 {
 public:
-	class node {
+	/*class node {
 		std::unordered_set<node*> connections;
 	public:
 		template<bool is_const>
@@ -48,29 +323,25 @@ public:
 				return previous;
 			}
 
-			/*connection_iterator_base<is_const>& operator--()
-			{
-				--iter;
-				return *this;
-			}
-
-			connection_iterator_base<is_const> operator--(int)
-			{
-				connection_iterator_base<is_const> previous = *this;
-				
-				this->operator--();
-
-				return previous;
-			}*/
-
 			const value_type& operator*() const
 			{
 				//Return a reference to the value
 				return **iter;
 			}
 			//Used for dereferencing the value
-			//This needs to be const because modifying the value in the tree would mess with the tree's structure
 			const pointer operator->() const
+			{
+				//Return a pointer to the value
+				return *iter;
+			}
+
+			value_type& operator*()
+			{
+				//Return a reference to the value
+				return **iter;
+			}
+			//Used for dereferencing the value
+			pointer operator->()
 			{
 				//Return a pointer to the value
 				return *iter;
@@ -189,19 +460,33 @@ public:
 		{
 			return cend();
 		}
-	};
+
+		bool operator!=(const node& rhs) const
+		{
+			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
+			return connections != rhs.connections || value != rhs.value;
+		}
+
+		bool operator==(const node& rhs) const
+		{
+			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
+			return connections == rhs.connections && value == rhs.value;
+		}
+	};*/
 
 private:
 	//The list of all the nodes in the graph
-	std::list<node> nodes{};
+	linked_list<graph_node<T>> nodes{};
 public:
-	template<bool is_const>
+
+	using node = graph_node<T>;
+	/*template<bool is_const>
 	class node_iterator_base {
-		make_const_if_true<std::list<node>, is_const>* source_nodes;
+		make_const_if_true<std::list<graph_node<T>>, is_const>* source_nodes;
 		decltype(source_nodes->begin()) iter;
 	public:
-		
-		using value_type = make_const_if_true<node, is_const>;
+
+		using value_type = make_const_if_true<graph_node<T>, is_const>;
 		using reference = value_type&;
 		using pointer = value_type*;
 		using iterator_category = std::forward_iterator_tag;
@@ -243,7 +528,7 @@ public:
 		node_iterator_base<is_const> operator--(int)
 		{
 			node_iterator_base<is_const> previous = *this;
-			
+
 			this->operator--();
 
 			return previous;
@@ -263,14 +548,16 @@ public:
 		}
 
 		//Tests for inequality
-		bool operator!=(const node_iterator_base<is_const>& rhs) const
+		template<bool other_const>
+		bool operator!=(const node_iterator_base<other_const>& rhs) const
 		{
 			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
 			return source_nodes != rhs.source_nodes || iter != rhs.iter;
 		}
 
 		//Tests for equality
-		bool operator==(const node_iterator_base<is_const>& rhs) const
+		template <bool other_const>
+		bool operator==(const node_iterator_base<other_const>& rhs) const
 		{
 			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
 			return source_nodes == rhs.source_nodes && iter == rhs.iter;
@@ -293,10 +580,13 @@ public:
 			iter = std::move(other.iter);
 			return *this;
 		}
-	};
+	};*/
+public:
 
-	using iterator = node_iterator_base<false>;
-	using const_iterator = node_iterator_base<true>;
+	//using iterator = node_iterator_base<false>;
+	//using const_iterator = node_iterator_base<true>;
+	using iterator = typename linked_list<graph_node<T>>::iterator; //const_iterator
+	using const_iterator = typename linked_list<graph_node<T>>::const_iterator;
 
 	//The default constructor for the graph
 	graph2() = default;
@@ -305,17 +595,17 @@ public:
 	graph2(const graph2<T>& toCopy) : nodes(toCopy.nodes)
 	{
 		//Update each of the nodes so that their source graph pointers are pointing to this graph
-		for (auto& node : nodes)
+		/*for (auto& node : nodes)
 		{
 			//node.source_nodes = nodes;
-		}
+		}*/
 	}
 	graph2(graph2<T>&& toMove) noexcept : nodes(std::move(toMove.nodes))
 	{
-		for (auto& node : nodes)
+		/*for (auto& node : nodes)
 		{
 			//node.source_nodes = nodes;
-		}
+		}*/
 	}
 
 	graph2<T>& operator=(const graph2<T>& toCopy)
@@ -342,15 +632,46 @@ public:
 	//The equality operator
 	bool operator==(const graph2<T>& rhs) const
 	{
+		if (nodes.getSize() != rhs.size()) {
+			return false;
+		}
+
+		auto iterA = nodes.begin();
+		auto iterB = rhs.nodes.begin();
+		for (int i = 0; i < nodes.getSize(); i++) {
+
+			if (*iterA != *iterB) {
+				return false;
+			}
+
+			++iterA;
+			++iterB;
+		}
 		//Test if the node lists are equal
-		return nodes == rhs.nodes;
+		return true;
 	}
 
 	//The inequality operator
 	bool operator!=(const graph2<T>& rhs) const
 	{
 		//Test of the node lists are not equal
-		return nodes != rhs.nodes;
+		if (nodes.getSize() != rhs.size()) {
+			return true;
+		}
+
+		auto iterA = nodes.begin();
+		auto iterB = rhs.nodes.begin();
+		for (int i = 0; i < nodes.getSize(); i++) {
+			if (*iterA != *iterB) {
+				return true;
+			}
+
+			++iterA;
+			++iterB;
+		}
+
+		//Test if the node lists are equal
+		return false;
 	}
 
 	//The destructor for the graph
@@ -359,13 +680,15 @@ public:
 	//Returns the start of the node list
 	auto begin()
 	{
-		return iterator(&nodes,nodes.begin());
+		//return iterator(&nodes,nodes.begin());
+		return nodes.begin();
 	}
 
 	//Returns the start of the node list
 	auto cbegin() const
 	{
-		return const_iterator(&nodes,nodes.cbegin());
+		return nodes.cbegin();
+		//return const_iterator(&nodes,nodes.cbegin());
 	}
 
 	//Returns the start of the node list
@@ -377,13 +700,15 @@ public:
 	//Returns the end of the node list
 	auto end()
 	{
-		return iterator(&nodes,nodes.end());
+		return nodes.end();
+		//return iterator(&nodes,nodes.end());
 	}
 
 	//Returns the end of the node list
 	auto cend() const
 	{
-		return const_iterator(&nodes,nodes.cend());
+		return nodes.cend();
+		//return const_iterator(&nodes,nodes.cend());
 	}
 
 	//Returns the end of the node list
@@ -395,7 +720,7 @@ public:
 	//Returns how many nodes are in the graph
 	auto size() const
 	{
-		return nodes.size();
+		return nodes.getSize();
 	}
 
 	//Adds a new node to the graph with the specified data
@@ -403,9 +728,10 @@ public:
 	iterator add_node(DataType&& data)
 	{
 		//Construct a new node and add it to the nodes list
-		nodes.emplace_back(this, std::forward<DataType>(data));
+		nodes.emplace_back(std::forward<DataType>(data));
 		//Return a pointer to the last element in the list
-		return iterator(&nodes,--nodes.end());
+		//return iterator(&nodes,--nodes.end());
+		return --nodes.end();
 	}
 
 	//Deletes a node from the graph
@@ -431,7 +757,7 @@ public:
 
 		for (auto n = nodes.begin(); n != nodes.end(); n++) {
 			if (*n == *iter) {
-				nodes.erase(n);
+				nodes.pop_element(n);
 				return;
 			}
 		}
@@ -462,11 +788,12 @@ public:
 			if (i->value == dataToFind)
 			{
 				//Return a pointer to the node
-				return iterator(&nodes,i);
+				//return iterator(&nodes,i);
+				return i;
 			}
 		}
 		//Return a nullptr if a value was not found
-		return nullptr;
+		return end();
 	}
 
 	//Finds a node in the graph with the corresponding data
@@ -482,11 +809,12 @@ public:
 			if (i->value == dataToFind)
 			{
 				//Return a pointer to the node
-				return const_iterator(&nodes,i);
+				//return const_iterator(&nodes,i);
+				return i;
 			}
 		}
 		//Return a nullptr if a value was not found
-		return nullptr;
+		return end();
 	}
 
 	//Clears the graph of all nodes
@@ -496,41 +824,44 @@ public:
 			delete_node(begin());
 		}
 	}
+};
 
-	//Prints the graph to the console
-	friend std::ostream& operator<<(std::ostream& stream, const node& node)
+//Prints the graph to the console
+template <typename T>
+std::ostream& operator<<(std::ostream& stream, const graph_node<T>& node)
+{
+	//Print the connections test
+	stream << "Connections -> {";
+
+
+	//If there are no connections
+	if (node.connections_size() == 0)
 	{
-		//Print the connections test
-		stream << "Connections -> {";
-
-
-		//If there are no connections
-		if (node.connections_size() == 0)
-		{
-			//Print a closing bracket and return
-			stream << "}";
-			return stream;
-		}
-
-		//Get the beginning of the connections list
-		auto begin = node.begin();
-		//Get the last VALID iterator of the connections list
-		auto end = --node.end();
-
-		//Loop over all the values in the list except the last
-		for (auto i = begin; i != end; i++)
-		{
-			//Print the value to the console
-			stream << i->getDestinationNode()->Value << ", ";
-		}
-
-		//Print the last value to the console and a closing bracket
-		stream << end->getDestinationNode()->Value << "}";
-
-		//Return the stream
+		//Print a closing bracket and return
+		stream << "}";
 		return stream;
 	}
-};
+
+	//Get the beginning of the connections list
+	auto iter = node.begin();
+	//Get the last VALID iterator of the connections list
+	//auto end = node.end();
+
+	//Loop over all the values in the list except the last
+	//for (auto i = begin; i != end; i++)
+	for (int i = 0; i < node.connections_size() - 1; i++)
+	{
+		//Print the value to the console
+		stream << iter->value << ", ";
+		iter++;
+	}
+
+	//Print the last value to the console and a closing bracket
+	stream << iter->value << "}";
+
+	//Return the stream
+	return stream;
+}
 
 //Prints the graph to the console
 template<typename T>

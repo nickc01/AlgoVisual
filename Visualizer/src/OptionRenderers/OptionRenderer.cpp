@@ -8,7 +8,6 @@ OptionRenderer::OptionRenderer() {}
 
 
 void OptionRenderer::update(double dt) {
-    //std::cout << "Scale = " << scale << std::endl;
     auto movement = -GetMouseWheelMove();
     dest_scale += movement * SCALE_MOVE_SPEED;
 
@@ -48,8 +47,10 @@ void OptionRenderer::update(double dt) {
         int currentMouseX = GetMouseX();
         int currentMouseY = GetMouseY();
 
-        dest_cam_x += (currentMouseX - lastMousePosX) * MOUSE_MOVE_MULTIPLIER * scale;
-        dest_cam_y += (currentMouseY - lastMousePosY) * MOUSE_MOVE_MULTIPLIER * scale;
+        auto movementAmount = transformMouseDelta(currentMouseX - lastMousePosX, currentMouseY - lastMousePosY);
+
+        dest_cam_x += movementAmount.x;
+        dest_cam_y += movementAmount.y;
         lastMousePosX = currentMouseX;
         lastMousePosY = currentMouseY;
     }
@@ -72,4 +73,11 @@ Vector2 OptionRenderer::transformPosition(float x, float y) const {
     vector.x = (GetScreenWidth() / 2.0) + ((x + cam_x) / scale) + (cam_x / scale);
     vector.y = (GetScreenHeight() / 2.0) + ((y + cam_y) / scale) + (cam_y / scale);
     return vector;
+}
+
+Vector2 OptionRenderer::transformMouseDelta(float diffX, float diffY) const {
+    Vector2 result;
+    result.x = diffX * MOUSE_MOVE_MULTIPLIER * scale;
+    result.y = diffY * MOUSE_MOVE_MULTIPLIER * scale;
+    return result;
 }

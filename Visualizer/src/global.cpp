@@ -8,14 +8,14 @@
 
 
 long lockCounter = 0;
-std::vector<long> uiLocks;
+std::vector<long> uiLocks{};
 
 long sortLock = 0;
-std::thread sortThread;
-bool runningSortThread;
+std::thread sortThread{};
+bool runningSortThread = false;
 bool stoppingThread = false;
 
-std::recursive_mutex sortMutex;
+std::recursive_mutex sortMutex{};
 
 /*void test() {
     SetWindowSize(200, 400);
@@ -29,7 +29,7 @@ int windowSizeY() {
     return GetScreenHeight();
 }
 
-bool beginSort(std::function<void()> sortFunc) {
+bool beginSort(std::function<void()>&& sortFunc) {
     {
         std::lock_guard<decltype(sortMutex)> guard{sortMutex};
         if (sortLock != 0) {
@@ -45,9 +45,9 @@ bool beginSort(std::function<void()> sortFunc) {
         }
     }
 
-    sortThread = std::thread{[&]() {
+    sortThread = std::thread{[func = std::move(sortFunc)]() {
         try {
-            sortFunc();
+            func();
         } catch (...) {
             //Exceptions are used to stop a sort
         }
