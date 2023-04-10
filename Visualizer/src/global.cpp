@@ -1,3 +1,4 @@
+#include "nfd.h"
 #include "raylib.h"
 #include <algorithm>
 #include <exception>
@@ -5,6 +6,9 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <nfd.h>
+#include <filesystem>
+#include <iostream>
 
 
 long lockCounter = 0;
@@ -14,8 +18,13 @@ long sortLock = 0;
 std::thread sortThread{};
 bool runningSortThread = false;
 bool stoppingThread = false;
+nfdchar_t *outPath;
+Texture2D orange_circle_tex;
+Texture2D grid_texture;
 
 std::recursive_mutex sortMutex{};
+
+nfdfilteritem_t filterItem[1] = { { "Data File", "dat" }};
 
 /*void test() {
     SetWindowSize(200, 400);
@@ -98,4 +107,46 @@ bool stoppingSort() {
 
 std::thread& getSortThread() {
     return sortThread;
+}
+
+
+const char* saveFile(const char* defaultName) {
+    nfdresult_t result = NFD_SaveDialog(&outPath,filterItem,1,NULL,defaultName);
+    if (result == NFD_OKAY) {
+        return outPath;
+    }
+    else {
+        return nullptr;
+    }
+}
+
+const char* loadFile() {
+    nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+    if (result == NFD_OKAY) {
+        return outPath;
+    }
+    else {
+        return nullptr;
+    }
+}
+
+void loadTextures() {
+    orange_circle_tex = LoadTexture(RES_ORANGE_CIRCLE);
+    SetTextureFilter(orange_circle_tex, TEXTURE_FILTER_TRILINEAR);
+
+    grid_texture = LoadTexture(RES_GRID_TEXTURE);
+    SetTextureFilter(grid_texture, TEXTURE_FILTER_POINT);
+    SetTextureWrap(grid_texture,TEXTURE_WRAP_REPEAT);
+}
+
+Texture2D& getOrangeCircle() {
+    return orange_circle_tex;
+}
+
+Texture2D& getGridTexture() {
+    return grid_texture;
+}
+
+void unloadTextures() {
+    UnloadTexture(orange_circle_tex);
 }

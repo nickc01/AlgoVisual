@@ -7,6 +7,7 @@
 #include <OptionRenderers/AlgorithmRenderer.h>
 #include <chrono>
 #include <functional>
+#include <memory>
 #include <string>
 #include <thread>
 
@@ -24,6 +25,7 @@ void AlgorithmRenderer::update(double dt) {
 }
 
 void AlgorithmRenderer::render() {
+    DrawBackground(2.0);
     ImGui::TextWrapped("%s", _description.c_str());
     if (!uiLocked()) {
         ImGui::InputFloat("Number",&selectedNumber);
@@ -75,12 +77,6 @@ void AlgorithmRenderer::render() {
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
 
         ImGui::InputFloat("Before Number",&beforeNumber);
 
@@ -122,7 +118,8 @@ void AlgorithmRenderer::render() {
         auto circlePos = transformPosition(value.x, value.y);
 
 
-        DrawCircle(circlePos.x,circlePos.y,CIRCLE_SIZE / scale,RED);
+        //DrawCircle(circlePos.x,circlePos.y,CIRCLE_SIZE / scale,RED);
+        DrawTexture(getOrangeCircle(),circlePos,scale);
 
         auto str = std::to_string(value.value);
 
@@ -240,5 +237,64 @@ void AlgorithmRenderer::shuffle() {
             destination->x = temp.x;
             destination->y = temp.y;
         }
+    }
+}
+
+void AlgorithmRenderer::onSave(std::ostream& outputStream) const {
+    outputStream << 'a';
+    outputStream << (size_t)_name.length();
+    outputStream << _name;
+    outputStream << (size_t)_description.length();
+    outputStream << _description;
+    outputStream << numberList.getSize();
+    outputStream << 'a';
+    for (auto& n : numberList) {
+        outputStream << n.value;
+        outputStream << 'a';
+        outputStream << n.targetX;
+        outputStream << 'a';
+        outputStream << n.targetY;
+        outputStream << 'a';
+    }
+    outputStream.flush();
+}
+
+void AlgorithmRenderer::onLoad(std::istream& inputStream) {
+    char id;
+    inputStream >> id;
+    if (id != 'a') {
+        throw std::exception();
+    }
+    numberList.clear();
+    size_t nameSize = 0;
+    inputStream >> nameSize;
+    inputStream.read(getBuffer().get(),nameSize);
+    _name = std::string{getBuffer().get(),(size_t)nameSize};
+
+    size_t descSize = 0;
+    inputStream >> descSize;
+    inputStream.read(getBuffer().get(),descSize);
+    _description = std::string{getBuffer().get(),(size_t)descSize};
+
+    int numberSize = 0;
+    inputStream >> numberSize;
+    inputStream >> id;
+
+    for (int i = 0; i < numberSize; i++) {
+        decltype(numberList.begin()->value) val;
+        inputStream >> val;
+        inputStream >> id;
+
+        visual_container<float> container {val};
+
+        inputStream >> container.targetX;
+        inputStream >> id;
+        inputStream >> container.targetY;
+        inputStream >> id;
+        
+        container.x = container.targetX;
+        container.y = container.targetY;
+
+        numberList.push_back(std::move(container));
     }
 }

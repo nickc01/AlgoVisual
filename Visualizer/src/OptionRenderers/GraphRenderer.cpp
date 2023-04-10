@@ -1,9 +1,12 @@
 #include "OptionRenderers/OptionRenderer.h"
+#include "global.h"
 #include "imgui.h"
+#include "raylib.h"
 #include "raymath.h"
 #include "visual_container.h"
 #include <OptionRenderers/GraphRenderer.h>
 #include <array>
+#include <vector>
 
 namespace {
     std::string _name = "Graph";
@@ -73,6 +76,8 @@ void GraphRenderer::update(double dt) {
 }
 
 void GraphRenderer::render() {
+
+    DrawBackground(2.0);
     //Draw lines firsts
     for (auto i = numberGraph.begin(); i != numberGraph.end(); i++) {
         auto& node = i->value;
@@ -80,7 +85,8 @@ void GraphRenderer::render() {
 
         for (auto& connection : *i) {
             auto connectionPos = transformPosition(connection.value.x, connection.value.y);
-            DrawLineEx(circlePos, connectionPos, 20 / scale, ORANGE);
+            DrawLineEx(circlePos, connectionPos, 20 / scale, {232, 106, 23, 255});
+            DrawLineEx(circlePos, connectionPos, 15 / scale, {250, 129, 50, 255});
         }
     }
 
@@ -93,7 +99,16 @@ void GraphRenderer::render() {
             DrawCircle(circlePos.x, circlePos.y, (CIRCLE_SIZE + 10) / scale, BLACK);
         }
 
-        DrawCircle(circlePos.x, circlePos.y, CIRCLE_SIZE / scale, RED);
+        //DrawCircle(circlePos.x, circlePos.y, CIRCLE_SIZE / scale, RED);
+        DrawTexture(getOrangeCircle(),circlePos,scale);
+        /*auto tex = getOrangeCircle();
+        Vector2 texturePos;
+        auto texScaleX = scale * (450 / CIRCLE_SIZE);
+        auto texScaleY = scale * (450 / CIRCLE_SIZE);
+        texturePos.x = circlePos.x - (tex.width / texScaleX / 2);
+        texturePos.y = circlePos.y - (tex.height / texScaleY / 2);
+        DrawTextureEx(tex, texturePos, 0, 1.0 / ((texScaleX + texScaleY) / 2.0), WHITE);*/
+        //DrawTexture(tex, circlePos.x - (tex.width / 2),circlePos.y - (tex.height / 2),WHITE);
 
         auto str = std::to_string(node.value);
 
@@ -131,7 +146,7 @@ void GraphRenderer::render() {
         ImGui::Spacing();
         ImGui::Spacing();
 
-        ImGui::InputFloat("Connect",&connectionNumber);
+        ImGui::InputFloat("Connection Number",&connectionNumber);
         if (ImGui::Button("Connect To Number")) {
         connect(selectedNumber);
     }
@@ -210,23 +225,80 @@ void GraphRenderer::createStarterList() {
                 continue;
             }
             if (rand() % 100 > 80) {
-                //i->add_connection(j);
                 i->add_connection_to(j);
             }
         }
     }
+}
 
-    //selectedNumber = numberGraph.end();
+void GraphRenderer::onSave(std::ostream& outputStream) const {
+    outputStream << 'g';
+    outputStream << numberGraph.size();
+    outputStream << 'g';
 
-    /*numberList.add_node(visual_container<float>(5,-5 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(1,-4 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(2,-3 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(11,-2 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(15,-1 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(0,0 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(4,1 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(3,2 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(9,3 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(2,4 * CIRCLE_SPACING,0));
-    numberList.add_node(visual_container<float>(13,5 * CIRCLE_SPACING,0));*/
+    std::vector<const visual_container<float>*> graph_nodes{};
+
+    for (auto& node : numberGraph) {
+        graph_nodes.push_back(&node.value);
+        outputStream << node.value.value;
+        outputStream << 'g';
+        outputStream << node.value.targetX;
+        outputStream << 'g';
+        outputStream << node.value.targetY;
+        outputStream << 'g';
+    }
+
+    for (auto& node : numberGraph) {
+        outputStream << node.connections_size();
+        outputStream << 'g';
+        for (auto& connection : node) {
+            for (int index = 0; index != graph_nodes.size(); index++) {
+                if (graph_nodes[index] == &connection.value) {
+                    outputStream << index;
+                    outputStream << 'g';
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void GraphRenderer::onLoad(std::istream& inputStream) {
+    char id;
+    inputStream >> id;
+    if (id != 'g') {
+        throw std::exception();
+    }
+    numberGraph.clear();
+
+    int size;
+    inputStream >> size;
+    inputStream >> id;
+    //visual_container<float>*
+    std::vector<graph<visual_container<float>>::iterator> graph_nodes{};
+
+    for (int i = 0; i < size; i++) {
+        float value, targetX, targetY;
+        inputStream >> value;
+        inputStream >> id;
+        inputStream >> targetX;
+        inputStream >> id;
+        inputStream >> targetY;
+        inputStream >> id;
+
+        auto node = numberGraph.add_node(visual_container<float>(value, targetX, targetY));
+        graph_nodes.push_back(node);
+    }
+
+    for (int i = 0; i < graph_nodes.size(); i++) {
+        int connections;
+        inputStream >> connections;
+        inputStream >> id;
+        for (int c = 0; c < connections; c++) {
+            int connectionIndex;
+            inputStream >> connectionIndex;
+            inputStream >> id;
+            graph_nodes[i]->add_connection_to(graph_nodes[connectionIndex]);
+        }
+    }
 }

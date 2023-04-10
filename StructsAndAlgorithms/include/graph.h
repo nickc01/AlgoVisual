@@ -8,12 +8,12 @@
 #include <linked_list.h>
 
 template<typename T>
-class graph2;
+class graph;
 
 template<typename T>
 class graph_node {
 
-	friend class graph2<T>;
+	friend class graph<T>;
 
 	linked_list<graph_node*> connections;
 
@@ -282,306 +282,12 @@ public:
 };
 
 template<typename T>
-class graph2 {
-public:
-	/*class node {
-		std::unordered_set<node*> connections;
-	public:
-		template<bool is_const>
-		class connection_iterator_base {
-			make_const_if_true<std::unordered_set<node*>,is_const>* connections = nullptr;
-			decltype(connections->begin()) iter;
-		public:
-			using value_type = make_const_if_true<node, is_const>;
-			using reference = value_type&;
-			using pointer = value_type*;
-			using iterator_category = std::forward_iterator_tag;
-			using difference_type = int;
-
-			connection_iterator_base() : connections(), iter() {}
-
-			connection_iterator_base(decltype(connections) _connections, decltype(iter) _iter) : connections(_connections), iter(_iter) {}
-
-			template<bool other_const>
-			connection_iterator_base(const connection_iterator_base<other_const>& other) : connections(other.connections), iter(other.iter) {}
-
-			template<bool other_const>
-			connection_iterator_base(connection_iterator_base<other_const>&& other) noexcept : connections(std::move(other.connections)), iter(std::move(other.iter)) {}
-
-			connection_iterator_base<is_const>& operator++()
-			{
-				++iter;
-				return *this;
-			}
-
-			connection_iterator_base<is_const> operator++(int)
-			{
-				connection_iterator_base<is_const> previous = *this;
-
-				this->operator++();
-
-				return previous;
-			}
-
-			const value_type& operator*() const
-			{
-				//Return a reference to the value
-				return **iter;
-			}
-			//Used for dereferencing the value
-			const pointer operator->() const
-			{
-				//Return a pointer to the value
-				return *iter;
-			}
-
-			value_type& operator*()
-			{
-				//Return a reference to the value
-				return **iter;
-			}
-			//Used for dereferencing the value
-			pointer operator->()
-			{
-				//Return a pointer to the value
-				return *iter;
-			}
-
-			//Tests for inequality
-			bool operator!=(const connection_iterator_base<is_const>& rhs) const
-			{
-				//return rhs.nodePtr != nodePtr || rhs.tree != tree;
-				return connections != rhs.connections || iter != rhs.iter;
-			}
-
-			//Tests for equality
-			bool operator==(const connection_iterator_base<is_const>& rhs) const
-			{
-				//return rhs.nodePtr == nodePtr && rhs.tree == tree;
-				return connections == rhs.connections && iter == rhs.iter;
-			}
-
-			//A copy assignment operator used for assigning a non-const iterator to a const version
-			template<bool other_const = is_const>
-			connection_iterator_base<is_const>& operator=(const connection_iterator_base<other_const>& other) noexcept
-			{
-				connections = other.connections;
-				iter = other.iter;
-				return *this;
-			}
-
-			//A move assignment operator used for assigning a non-const iterator to a const version
-			template<bool other_const = is_const>
-			connection_iterator_base<is_const>& operator=(connection_iterator_base<other_const>&& other) noexcept
-			{
-				connections = std::move(other.connections);
-				iter = std::move(other.iter);
-				return *this;
-			}
-		};
-
-		using iterator = connection_iterator_base<false>;
-		using const_iterator = connection_iterator_base<true>;
-
-		T value;
-
-		template <typename ValueType>
-		node(ValueType&& _value) : value(std::forward<ValueType>(_value)) {}
-
-		bool add_connection_to(node& node) {
-			return connections.emplace(&node).second;
-		}
-
-		bool remove_connection_to(const node& node) {
-			auto result = connections.end();
-			for (auto i = connections.begin(); i != connections.end(); i++) {
-				if (*i == &node) {
-					result = i;
-				}
-			}
-			//auto result = connections.find(&node);
-			if (result != connections.end()) {
-				connections.erase(result);
-				return true;
-			}
-			return false;
-		}
-
-		void remove_all_connections() {
-			connections.clear();
-		}
-
-		bool has_connection_to(const node& node) const {
-			for (auto i = connections.begin(); i != connections.end(); i++) {
-				if (*i == &node) {
-					return true;
-				}
-			}
-			return false;
-			//return connections.find(&node) != connections.end();
-		}
-
-		int connections_size() const {
-			return connections.size();
-		}
-
-		//Returns the start of the node list
-		auto begin()
-		{
-			return iterator(&connections,connections.begin());
-		}
-
-		//Returns the start of the node list
-		auto cbegin() const
-		{
-			return const_iterator(&connections,connections.cbegin());
-		}
-
-		//Returns the start of the node list
-		auto begin() const
-		{
-			return cbegin();
-		}
-
-		//Returns the end of the node list
-		auto end()
-		{
-			return iterator(&connections,connections.end());
-		}
-
-		//Returns the end of the node list
-		auto cend() const
-		{
-			return const_iterator(&connections,connections.cend());
-		}
-
-		//Returns the end of the node list
-		auto end() const
-		{
-			return cend();
-		}
-
-		bool operator!=(const node& rhs) const
-		{
-			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
-			return connections != rhs.connections || value != rhs.value;
-		}
-
-		bool operator==(const node& rhs) const
-		{
-			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
-			return connections == rhs.connections && value == rhs.value;
-		}
-	};*/
-
-private:
+class graph {
 	//The list of all the nodes in the graph
 	linked_list<graph_node<T>> nodes{};
 public:
 
 	using node = graph_node<T>;
-	/*template<bool is_const>
-	class node_iterator_base {
-		make_const_if_true<std::list<graph_node<T>>, is_const>* source_nodes;
-		decltype(source_nodes->begin()) iter;
-	public:
-
-		using value_type = make_const_if_true<graph_node<T>, is_const>;
-		using reference = value_type&;
-		using pointer = value_type*;
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = int;
-
-		node_iterator_base() = default;
-
-		node_iterator_base(decltype(source_nodes) _nodes) : source_nodes(_nodes), iter(_nodes->end()) {}
-
-		node_iterator_base(decltype(source_nodes) _nodes, decltype(iter) _iter) : source_nodes(_nodes), iter(_iter) {}
-
-		template<bool other_const>
-		node_iterator_base(const node_iterator_base<other_const>& other) : source_nodes(other.source_nodes), iter(other.iter) {}
-
-		template<bool other_const>
-		node_iterator_base(node_iterator_base<other_const>&& other) noexcept : source_nodes(std::move(other.source_nodes)), iter(std::move(other.iter)) {}
-
-		node_iterator_base<is_const>& operator++()
-		{
-			++iter;
-			return *this;
-		}
-
-		node_iterator_base<is_const> operator++(int)
-		{
-			node_iterator_base<is_const> previous = *this;
-
-			this->operator++();
-
-			return previous;
-		}
-
-		node_iterator_base<is_const>& operator--()
-		{
-			--iter;
-			return *this;
-		}
-
-		node_iterator_base<is_const> operator--(int)
-		{
-			node_iterator_base<is_const> previous = *this;
-
-			this->operator--();
-
-			return previous;
-		}
-
-		const value_type& operator*() const
-		{
-			//Return a reference to the value
-			return *iter;
-		}
-		//Used for dereferencing the value
-		//This needs to be const because modifying the value in the tree would mess with the tree's structure
-		const pointer operator->() const
-		{
-			//Return a pointer to the value
-			return iter.operator->();
-		}
-
-		//Tests for inequality
-		template<bool other_const>
-		bool operator!=(const node_iterator_base<other_const>& rhs) const
-		{
-			//return rhs.nodePtr != nodePtr || rhs.tree != tree;
-			return source_nodes != rhs.source_nodes || iter != rhs.iter;
-		}
-
-		//Tests for equality
-		template <bool other_const>
-		bool operator==(const node_iterator_base<other_const>& rhs) const
-		{
-			//return rhs.nodePtr == nodePtr && rhs.tree == tree;
-			return source_nodes == rhs.source_nodes && iter == rhs.iter;
-		}
-
-		//A copy assignment operator used for assigning a non-const iterator to a const version
-		template<bool other_const = is_const>
-		node_iterator_base<is_const>& operator=(const node_iterator_base<other_const>& other) noexcept
-		{
-			source_nodes = other.source_nodes;
-			iter = other.iter;
-			return *this;
-		}
-
-		//A move assignment operator used for assigning a non-const iterator to a const version
-		template<bool other_const = is_const>
-		node_iterator_base<is_const>& operator=(node_iterator_base<other_const>&& other) noexcept
-		{
-			source_nodes = std::move(other.source_nodes);
-			iter = std::move(other.iter);
-			return *this;
-		}
-	};*/
-public:
 
 	//using iterator = node_iterator_base<false>;
 	//using const_iterator = node_iterator_base<true>;
@@ -589,10 +295,10 @@ public:
 	using const_iterator = typename linked_list<graph_node<T>>::const_iterator;
 
 	//The default constructor for the graph
-	graph2() = default;
+	graph() = default;
 
 	//The copy constructor for the graph
-	graph2(const graph2<T>& toCopy) : nodes(toCopy.nodes)
+	graph(const graph<T>& toCopy) : nodes(toCopy.nodes)
 	{
 		//Update each of the nodes so that their source graph pointers are pointing to this graph
 		/*for (auto& node : nodes)
@@ -600,7 +306,7 @@ public:
 			//node.source_nodes = nodes;
 		}*/
 	}
-	graph2(graph2<T>&& toMove) noexcept : nodes(std::move(toMove.nodes))
+	graph(graph<T>&& toMove) noexcept : nodes(std::move(toMove.nodes))
 	{
 		/*for (auto& node : nodes)
 		{
@@ -608,7 +314,7 @@ public:
 		}*/
 	}
 
-	graph2<T>& operator=(const graph2<T>& toCopy)
+	graph<T>& operator=(const graph<T>& toCopy)
 	{
 		//Make a copy of the nodes list
 		nodes = toCopy.nodes;
@@ -618,7 +324,7 @@ public:
 			node.sourceGraph = this;
 		}*/
 	}
-	graph2<T>& operator=(graph2<T>&& toMove)
+	graph<T>& operator=(graph<T>&& toMove)
 	{
 		//Move the nodes list to this graph
 		nodes = std::move(toMove.nodes);
@@ -630,7 +336,7 @@ public:
 	}
 
 	//The equality operator
-	bool operator==(const graph2<T>& rhs) const
+	bool operator==(const graph<T>& rhs) const
 	{
 		if (nodes.getSize() != rhs.size()) {
 			return false;
@@ -652,7 +358,7 @@ public:
 	}
 
 	//The inequality operator
-	bool operator!=(const graph2<T>& rhs) const
+	bool operator!=(const graph<T>& rhs) const
 	{
 		//Test of the node lists are not equal
 		if (nodes.getSize() != rhs.size()) {
@@ -675,7 +381,7 @@ public:
 	}
 
 	//The destructor for the graph
-	~graph2() = default;
+	~graph() = default;
 
 	//Returns the start of the node list
 	auto begin()
@@ -907,7 +613,7 @@ std::ostream& operator<<(std::ostream& stream, const graph_node<T>& node)
 
 //Prints the graph to the console
 template<typename T>
-std::ostream& operator<<(std::ostream& stream, const graph2<T>& graph)
+std::ostream& operator<<(std::ostream& stream, const graph<T>& graph)
 {
 	//Loop over all the nodes in the graph
 	for (auto i = graph.begin(); i != graph.end(); i++)

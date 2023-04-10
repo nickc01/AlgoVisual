@@ -10,17 +10,6 @@
 
 class AlgorithmRenderer : public OptionRenderer {
 public:
-    /*struct valueContainer {
-        float value;
-        float x;
-        float y;
-
-        float targetX;
-        float targetY;
-
-        valueContainer(float Value, float X, float Y) : value(Value), x(X), y(Y), targetX(X), targetY(Y) {}
-    };*/
-
     static constexpr bool visualValueComparer(const visual_container<float>& a, const visual_container<float>& b) {
         return a.value < b.value;
     }
@@ -47,6 +36,9 @@ private:
     void createStarterList();
 
     void swap(decltype(numberList.begin())& a, decltype(numberList.begin())& b);
+protected:
+    void onSave(std::ostream& outputStream) const override;
+    void onLoad(std::istream& inputStream) override;
 public:
     using iterType = decltype(numberList.begin());
     using valueType = decltype(*numberList.begin());

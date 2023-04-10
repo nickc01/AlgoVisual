@@ -5,6 +5,7 @@
 #include "raymath.h"
 #include "visual_container.h"
 #include <OptionRenderers/BinarySearchTreeRenderer.h>
+#include <global.h>
 
 namespace {
     std::string _name = "Binary Search Tree";
@@ -33,6 +34,7 @@ void BinarySearchTreeRenderer::updateNodes(decltype(tree)::iterator node, double
 }
 
 void BinarySearchTreeRenderer::render() {
+    DrawBackground(2.0);
     renderNodeLines(tree.getRoot());
     renderNode(tree.getRoot());
     ImGui::Spacing();
@@ -95,7 +97,8 @@ void BinarySearchTreeRenderer::renderNode(decltype(tree)::iterator node) {
     }
     auto circlePos = transformPosition(node->x, node->y);
 
-    DrawCircle(circlePos.x,circlePos.y,CIRCLE_SIZE / scale,RED);
+    //DrawCircle(circlePos.x,circlePos.y,CIRCLE_SIZE / scale,RED);
+    DrawTexture(getOrangeCircle(),circlePos,scale);
 
     auto str = std::to_string(node->value);
 
@@ -215,4 +218,95 @@ bool BinarySearchTreeRenderer::add_random_number() {
 
 void BinarySearchTreeRenderer::clear() {
     tree.clear();
+}
+
+void BinarySearchTreeRenderer::onSave(std::ostream& outputStream) const {
+    outputStream << 'b';
+    onSave(tree.getRoot(),outputStream);
+}
+
+void BinarySearchTreeRenderer::onSave(decltype(tree)::const_iterator root, std::ostream& outputStream) const {
+    if (root == tree.end()) {
+        return;
+    }
+    outputStream << root->value;
+    outputStream << 'b';
+    outputStream << root->targetX;
+    outputStream << 'b';
+    outputStream << root->targetY;
+    outputStream << 'b';
+    char type = 0;
+    if (root.getLeft() != tree.end()) {
+        type |= 1;
+    }
+    if (root.getRight() != tree.end()) {
+        type |= 2;
+    }
+    outputStream << type;
+    outputStream << 'b';
+
+    if ((type & 1) == 1) {
+        onSave(root.getLeft(),outputStream);
+    }
+    if ((type & 2) == 2) {
+        onSave(root.getRight(),outputStream);
+    }
+}
+
+void BinarySearchTreeRenderer::onLoad(std::istream& inputStream) {
+    char id;
+    inputStream >> id;
+    if (id != 'b') {
+        throw std::exception();
+    }
+    tree.clear();
+    if (!inputStream.eof()) {
+        tree.setSelfBalancing(false);
+        float value, targetX, targetY;
+        inputStream >> value;
+        inputStream >> id;
+        inputStream >> targetX;
+        inputStream >> id;
+        inputStream >> targetY;
+        inputStream >> id;
+        auto container = visual_container<float>(value,targetX,targetY);
+
+        auto root = tree.insert(std::move(container));
+
+        char type = 0;
+        inputStream >> type;
+        inputStream >> id;
+        if ((type & 1) == 1) {
+            onLoad(root,inputStream);
+        }
+        if ((type & 2) == 2) {
+            onLoad(root, inputStream);
+        }
+    }
+
+    tree.setSelfBalancing(true);
+}
+
+void BinarySearchTreeRenderer::onLoad(decltype(tree)::iterator node, std::istream& inputStream) {
+    char id;
+    float value, targetX, targetY;
+    inputStream >> value;
+    inputStream >> id;
+    inputStream >> targetX;
+    inputStream >> id;
+    inputStream >> targetY;
+    inputStream >> id;
+    auto container = visual_container<float>(value,targetX,targetY);
+
+    auto next = tree.insert(std::move(container),node);
+
+    char type = 0;
+    inputStream >> type;
+    inputStream >> id;
+    if ((type & 1) == 1) {
+        onLoad(next,inputStream);
+    }
+    if ((type & 2) == 2) {
+        onLoad(next, inputStream);
+    }
 }

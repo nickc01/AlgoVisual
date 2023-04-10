@@ -1,6 +1,9 @@
 #pragma once
 #include "raylib.h"
+#include <memory>
 #include <string>
+#include <ostream>
+#include <istream>
 
 class OptionRenderer {
 public:
@@ -24,10 +27,17 @@ protected:
     bool mouseHeld = false;
     int lastMousePosX = 0;
     int lastMousePosY = 0;
+
+    virtual void onSave(std::ostream& outputStream) const = 0;
+    virtual void onLoad(std::istream& inputStream) = 0;
 public:
     float dest_scale = 1;
     float dest_cam_x = 0;
     float dest_cam_y = 0;
+
+    static void DrawTexture(Texture2D tex, Vector2 position, float scale);
+
+    void DrawBackground(float relativeScale = 1.0, float parallax = 1.0);
 
 
 
@@ -42,4 +52,12 @@ public:
     Vector2 transformPosition(float x, float y) const;
 
     Vector2 transformMouseDelta(float diffX, float diffY) const;
+
+    void save(const char* file_path) const;
+    void load(const char* file_path);
+
+    void save() const;
+    void load();
+
+    static std::shared_ptr<char> getBuffer();
 };

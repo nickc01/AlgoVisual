@@ -1,8 +1,12 @@
 #include "raylib.h"
 #include "raymath.h"
+#include <ios>
 #include <iostream>
 #include <OptionRenderers/OptionRenderer.h>
 #include <global.h>
+#include <fstream>
+#include <memory>
+
 
 OptionRenderer::OptionRenderer() {}
 
@@ -80,4 +84,81 @@ Vector2 OptionRenderer::transformMouseDelta(float diffX, float diffY) const {
     result.x = diffX * MOUSE_MOVE_MULTIPLIER * scale;
     result.y = diffY * MOUSE_MOVE_MULTIPLIER * scale;
     return result;
+}
+
+void OptionRenderer::save(const char* file_path) const {
+    if (file_path == nullptr) {
+        return;
+    }
+    std::ofstream saveFile{file_path};
+    try {
+        onSave(saveFile);
+
+        saveFile.flush();
+        saveFile.close();
+    } catch (...) {
+        saveFile.close();
+        throw;
+    }
+}
+
+void OptionRenderer::load(const char* file_path) {
+    if (file_path == nullptr) {
+        return;
+    }
+    std::ifstream loadFile{file_path};
+    try {
+        onLoad(loadFile);
+
+        loadFile.close();
+    } catch (...) {
+        loadFile.close();
+        throw;
+    }
+}
+
+void OptionRenderer::save() const {
+    save(saveFile("data.dat"));
+}
+
+void OptionRenderer::load() {
+    load(loadFile());
+}
+
+std::shared_ptr<char> buffer = std::shared_ptr<char>(new char[2000],std::default_delete<char[]>());
+
+std::shared_ptr<char> OptionRenderer::getBuffer() {
+    return buffer;
+}
+
+void OptionRenderer::DrawTexture(Texture2D tex, Vector2 position, float scale) {
+    Vector2 texturePos;
+    auto texScaleX = scale * (450 / CIRCLE_SIZE);
+    auto texScaleY = scale * (450 / CIRCLE_SIZE);
+    texturePos.x = position.x - (tex.width / texScaleX / 2);
+    texturePos.y = position.y - (tex.height / texScaleY / 2);
+    DrawTextureEx(tex, texturePos, 0, 1.0 / ((texScaleX + texScaleY) / 2.0), WHITE);
+}
+
+void OptionRenderer::DrawBackground(float relativeScale, float parallax) {
+    auto tex = getGridTexture();
+
+    auto scale = this->scale * relativeScale;
+
+	Rectangle sourceRect;
+	sourceRect.x = ((-cam_x * 2 / scale) - GetScreenWidth() / 2.0) * scale;
+	sourceRect.y = ((-cam_y * 2 / scale) - GetScreenHeight() / 2.0) * scale;
+	sourceRect.width = GetScreenWidth() * scale;
+	sourceRect.height = GetScreenHeight() * scale;
+
+    Rectangle destRect;
+	destRect.x = GetScreenWidth() / 2.0;
+	destRect.y = GetScreenHeight() / 2.0;
+	destRect.width = GetScreenWidth();
+	destRect.height = GetScreenHeight();
+
+	Vector2 origin;
+	origin.x = GetScreenWidth() / 2.0;
+	origin.y = GetScreenHeight() / 2.0;
+	DrawTexturePro(tex,sourceRect,destRect,origin,0,WHITE);
 }

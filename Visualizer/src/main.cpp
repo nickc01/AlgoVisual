@@ -22,18 +22,15 @@
 #include <bubble_sort.h>
 #include <global.h>
 #include <OptionRenderers/GraphRenderer.h>
+#include <nfd.h>
 
 using namespace std;
 
 constexpr const char* WINDOW_TITLE = "Structure and Algorithm Tester";
-
-//TEST
-
-//std::vector<std::string> optionNames;
 std::unique_ptr<const char* []> optionNamesCStr;
 int itemCount = 0;
-
 int selectedItem = 0;
+std::string errorMessage;
 
 void setup();
 void cleanup();
@@ -49,6 +46,7 @@ std::shared_ptr<OptionRenderer> selectedRenderer = nullptr;
 
 int main()
 {
+	NFD_Init();
 	createRenderers();
 	//optionNames = create_option_strings();
 	optionNamesCStr = convertToCharArrays(optionRenderers);
@@ -111,7 +109,26 @@ int main()
 		selectedRenderer->update(GetFrameTime());
 		selectedRenderer->render();
 
+		if(ImGui::Button("Save To File")) {
+			try {
+				selectedRenderer->save();
+				errorMessage = "";
+			} catch (...) {
+				errorMessage = "Failed to save " + selectedRenderer->getName() + " to a file";
+			}
+			
+		}
 
+		if (ImGui::Button("Load from File")) {
+			try {
+				selectedRenderer->load();
+			} catch (...) {
+				errorMessage = "Failed to load file for " + selectedRenderer->getName();
+			}
+			
+		}
+
+		ImGui::Spacing();
 
 		ImGui::End();
 
@@ -119,13 +136,15 @@ int main()
 	}
 
 	cleanup();
+
+	NFD_Quit();
 }
 
 void start_draw()
 {
 	BeginDrawing();
 
-	ClearBackground(RAYWHITE);
+	ClearBackground(GRAY);
 
 	// start ImGui Conent
 	rlImGuiBegin();
@@ -148,6 +167,8 @@ void setup()
 	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
 	rlImGuiSetup(true);
+
+	loadTextures();
 }
 
 void createRenderers() {
@@ -206,6 +227,8 @@ void createRenderers() {
 
 void cleanup()
 {
+	unloadTextures();
+
 	CloseWindow();
 
 	endSort();

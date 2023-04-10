@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <raylib.h>
 #include <functional>
 #include <thread>
@@ -20,3 +21,16 @@ bool runningSort();
 bool stoppingSort();
 
 std::thread& getSortThread();
+
+const char* saveFile(const char* defaultName);
+
+const char* loadFile();
+
+
+void loadTextures();
+
+Texture2D& getOrangeCircle();
+Texture2D& getGridTexture();
+
+void unloadTextures();
+

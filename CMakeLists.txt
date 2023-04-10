@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(AlgoVisual VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/${CMAKE_BUILD_TYPE}")
@@ -54,10 +54,21 @@ target_include_directories(${PROJECT_NAME} PUBLIC "Visualizer/include")
 
 add_subdirectory(lib/raylib)
 add_subdirectory(lib/imgui)
+add_subdirectory(lib/nativefiledialog)
 
-target_link_libraries(${PROJECT_NAME} raylib_static imgui StructsAndAlgorithms)
+target_link_libraries(${PROJECT_NAME} raylib_static imgui StructsAndAlgorithms nfd)
 
+file(GLOB_RECURSE RESOURCE_FILES
+     "resources/*.*"
+)
 
+foreach(file ${RESOURCE_FILES})
+	file(RELATIVE_PATH CURRENT_RESOURCE_PATH ${CMAKE_SOURCE_DIR} ${file})
+
+	get_filename_component(CURRENT_RESOURCE_NAME ${file} NAME_WE)
+	string(TOUPPER ${CURRENT_RESOURCE_NAME} CURRENT_RESOURCE_NAME)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE RES_${CURRENT_RESOURCE_NAME}="${CURRENT_RESOURCE_PATH}")
+endforeach()
 
 
 # TESTS
@@ -74,3 +85,7 @@ add_executable(AlgoTests
 "test/src/algorithm_tests.cpp")
 
 target_link_libraries(AlgoTests PRIVATE GTEST::GTEST StructsAndAlgorithms)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/resources/ ${CMAKE_SOURCE_DIR}/build/bin/${CMAKE_BUILD_TYPE}/resources)

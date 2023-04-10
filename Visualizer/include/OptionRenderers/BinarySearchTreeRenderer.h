@@ -33,7 +33,12 @@ class BinarySearchTreeRenderer : public OptionRenderer {
     bool remove_number(float number);
     bool add_random_number();
     void clear();
+protected:
+    void onSave(std::ostream& outputStream) const override;
+    void onLoad(std::istream& inputStream) override;
 
+    void onLoad(decltype(tree)::iterator node, std::istream& inputStream);
+    void onSave(decltype(tree)::const_iterator root, std::ostream& outputStream) const;
 public:
     void update(double dt) override;
 

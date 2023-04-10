@@ -1041,6 +1041,27 @@ public:
         }
     }
 
+    template<typename DataType>
+    iterator insert(DataType&& data, iterator parent)
+    {
+        //If the root is null, then the new node becomes the root
+        if (root == nullptr)
+        {
+            //Increase the tree size
+            treeSize++;
+            //Create the new node as the root
+            root = new node(std::forward<DataType>(data), nullptr, nullptr, nullptr);
+            //Return an iterator to the root
+            return iterator(root, this);
+        }
+        //If the root is not null, then traverse the tree to find a spot for the value
+        else
+        {
+            //Insert into the tree and return an iterator to it
+            return iterator(insert(std::forward<DataType>(data),parent.nodePtr), this);
+        }
+    }
+
     //Deletes a node from the tree. Returns true if a node has been deleted
     //The template parameter is to allow the function to take both rvalues and lvalues.
     template<typename DataType = T>

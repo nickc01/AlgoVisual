@@ -4,9 +4,9 @@
 #include <gtest/gtest.h>
 
 //Creates a testing graph
-graph2<int> createGraph()
+graph<int> createGraph()
 {
-	graph2<int> testGraph;
+	graph<int> testGraph;
 	//Create a starting node
 	auto firstNode = testGraph.add_node(0);
 
@@ -34,10 +34,10 @@ graph2<int> createGraph()
 TEST(GraphTests, CopyConstructorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Create a copy of the graph
-	graph2<int> copy{ testGraph };
+	graph<int> copy{ testGraph };
 
 	//Test if the graphs are equal
 	ASSERT_EQ(testGraph, copy);
@@ -46,10 +46,10 @@ TEST(GraphTests, CopyConstructorTest)
 TEST(GraphTests, MoveConstructorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Create a new graph by moving the existing graph
-	graph2<int> move{ std::move(testGraph) };
+	graph<int> move{ std::move(testGraph) };
 
 	//Test if the list has been moved
 	ASSERT_TRUE(testGraph != move && testGraph.size() == 0);
@@ -58,10 +58,10 @@ TEST(GraphTests, MoveConstructorTest)
 TEST(GraphTests, CopyAssignmentTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Create a copy of the graph
-	graph2<int> copy = testGraph;
+	graph<int> copy = testGraph;
 
 	//Test if the graphs are equal
 	ASSERT_TRUE(testGraph == copy);
@@ -70,10 +70,10 @@ TEST(GraphTests, CopyAssignmentTest)
 TEST(GraphTests, MoveAssignmentTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Create a new graph by moving the existing graph
-	graph2<int> move = std::move(testGraph);
+	graph<int> move = std::move(testGraph);
 
 	//Test if the list has been moved
 	ASSERT_TRUE(testGraph != move && testGraph.size() == 0);
@@ -82,7 +82,7 @@ TEST(GraphTests, MoveAssignmentTest)
 TEST(GraphTests, AddNodeTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Add a new node with the number 234
 	testGraph.add_node(234);
@@ -94,7 +94,7 @@ TEST(GraphTests, AddNodeTest)
 TEST(GraphTests, DeleteNodeTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Delete the node with the value "200" from the list
 	testGraph.delete_node_by_value(200);
@@ -106,10 +106,10 @@ TEST(GraphTests, DeleteNodeTest)
 TEST(GraphTests, IteratorTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Store the amount of nodes in the graph
-	std::list<graph2<int>::node*> storageList;
+	std::list<graph<int>::node*> storageList;
 
 
 	//Loop over all the nodes in the graph
@@ -126,10 +126,10 @@ TEST(GraphTests, IteratorTest)
 TEST(GraphTests, ConstIteratorTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = createGraph();
+	const graph<int> testGraph = createGraph();
 
 	//Store the amount of nodes in the graph
-	std::list<const graph2<int>::node*> storageList;
+	std::list<const graph<int>::node*> storageList;
 
 	//Loop over all the nodes in the graph
 	for (auto i = testGraph.cbegin(); i != testGraph.cend(); i++)
@@ -145,7 +145,7 @@ TEST(GraphTests, ConstIteratorTest)
 TEST(GraphTests, FindTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = createGraph();
+	const graph<int> testGraph = createGraph();
 
 	//Test if the node "200" exists in the graph
 	ASSERT_NE(testGraph.find_node(200), testGraph.end());
@@ -154,7 +154,7 @@ TEST(GraphTests, FindTest)
 TEST(GraphTests, ClearTest)
 {
 	//Create a test graph
-	graph2<int> testGraph = createGraph();
+	graph<int> testGraph = createGraph();
 
 	//Clear the graph
 	testGraph.clear();
@@ -166,7 +166,7 @@ TEST(GraphTests, ClearTest)
 TEST(GraphTests, SizeTest)
 {
 	//Create a test graph
-	const graph2<int> testGraph = createGraph();
+	const graph<int> testGraph = createGraph();
 
 	//Test if there are 5 nodes in the graph
 	ASSERT_EQ(testGraph.size(), 5);
@@ -175,9 +175,9 @@ TEST(GraphTests, SizeTest)
 TEST(GraphTests, EqualityTest)
 {
 	//Create a test graph
-	const graph2<int> a = createGraph();
+	const graph<int> a = createGraph();
 	//Create a second test graph
-	const graph2<int> b = createGraph();
+	const graph<int> b = createGraph();
 
 	//Test if they are equal
 	ASSERT_EQ(a, b);
@@ -186,9 +186,9 @@ TEST(GraphTests, EqualityTest)
 TEST(GraphTests, NonEqualityTest)
 {
 	//Create a test graph
-	const graph2<int> a = createGraph();
+	const graph<int> a = createGraph();
 	//Create an empty graph
-	const graph2<int> b;
+	const graph<int> b;
 
 	//Test if they are non-equal
 	ASSERT_NE(a, b);
@@ -200,7 +200,7 @@ TEST(GraphTests, PrintTest)
 	std::stringstream stream;
 
 	//Create a test graph
-	const graph2<int> a = createGraph();
+	const graph<int> a = createGraph();
 
 	//Print to the stream
 	stream << a;

@@ -5,7 +5,7 @@
 
 class GraphRenderer : public OptionRenderer {
     static constexpr float NODE_ANGLE_SIZE = 500;
-    graph2<visual_container<float>> numberGraph{};
+    graph<visual_container<float>> numberGraph{};
 
     bool mouseDown = false;
     bool movingNode = false;
@@ -24,8 +24,10 @@ class GraphRenderer : public OptionRenderer {
     void clear();
     void connect(float value);
     void disconnect(float value);
+protected:
+    void onSave(std::ostream& outputStream) const override;
+    void onLoad(std::istream& inputStream) override;
 public:
-
     void update(double dt) override;
 
     void render() override;
