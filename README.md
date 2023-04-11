@@ -2,6 +2,10 @@
 
 AlgoVisual is a C++ program that showcases various data structures and sorting algorithms. The program implements data structures such as binary search trees, linked lists, and graphs and applies sorting algorithms to them. It also includes performance metrics for quick_sort, insertion_sort, and binary_search_tree and displays each data structure graphically. The program uses GTest for unit testing each data structure and algorithm.
 
+Use Arrow keys or WASD to move the camera around.
+
+When you are in graph mode, you can select any node to move it around
+
 # Building AlgoVisual
 
 To build AlgoVisual, you need to have CMake installed. Here are the steps to build AlgoVisual:
