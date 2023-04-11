@@ -421,7 +421,7 @@ public:
 	void delete_node_by_value(DataType&& data)
 	{
 		//Find the node and attempt to delete it
-		delete_node(find_node_nonconst(std::forward<DataType>(data)));
+		delete_node(find_node(std::forward<DataType>(data)));
 	}
 
 	//Finds a node in the graph with the corresponding data
