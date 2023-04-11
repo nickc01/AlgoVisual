@@ -1,29 +1,43 @@
-# README #
+# AlgoVisual
 
-This README would normally document whatever steps are necessary to get your application up and running.
+AlgoVisual is a C++ program that showcases various data structures and sorting algorithms. The program implements data structures such as binary search trees, linked lists, and graphs and applies sorting algorithms to them. It also includes performance metrics for quick_sort, insertion_sort, and binary_search_tree and displays each data structure graphically. The program uses GTest for unit testing each data structure and algorithm.
 
-### What is this repository for? ###
+# Building AlgoVisual
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+To build AlgoVisual, you need to have CMake installed. Here are the steps to build AlgoVisual:
+```bash
+    #1 : Clone the repository
+    git clone https://github.com/nickc01/AlgoVisual.git --recursive
 
-### How do I get set up? ###
+    #2 : Navigate to the root directory of the project
+    cd AlgoVisual
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+    #3 : Create build directory
+    mkdir build && cd build
 
-### Contribution guidelines ###
+    #4 : Run CMake
+    cmake ..
 
-* Writing tests
-* Code review
-* Other guidelines
+    #5 : Build the project
+    cmake --build .
+```
 
-### Who do I talk to? ###
+The executable will be located in build/bin/ directory.
+# Dependencies
 
-* Repo owner or admin
-* Other community or team contact
+AlgoVisual has the following dependencies:
+
+- Raylib
+- Imgui
+- NativeFileDialog
+
+These dependencies are included as submodules in the project and will be built automatically when building the project.
+# Running AlgoVisual
+
+Once built, you can run AlgoVisual by executing the binary located in build/bin/ directory.
+# Running Tests
+
+You can run the tests by executing the binary AlgoTests located in build/ directory.
+# License
+
+AlgoVisual is released under the MIT License. Please see the LICENSE file for details.
