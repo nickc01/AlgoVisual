@@ -1,11 +1,14 @@
 #pragma once
 
+//Used for displaying a value at a position on-screen
 template<typename T>
 struct visual_container {
     T value;
+    //The current position of the container
     mutable float x = 0;
     mutable float y = 0;
 
+    //The destination position of the container
     mutable float targetX = 0;
     mutable float targetY = 0;
 

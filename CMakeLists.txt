@@ -25,17 +25,8 @@ set_target_properties(StructsAndAlgorithms PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(${PROJECT_NAME} 
 "Visualizer/src/main.cpp" 
-"Visualizer/include/test.h"
-"Visualizer/src/event.cpp" 
-"Visualizer/include/Event.h"  
-"Visualizer/include/render_list.h" 
-"Visualizer/include/update_list.h" 
-"Visualizer/include/misc.h" 
-"Visualizer/src/misc.cpp"
 "Visualizer/include/rlImGui.h"
 "Visualizer/src/rlImGui.cpp"
-"Visualizer/include/options.h"
-"Visualizer/src/options.cpp"
 "Visualizer/include/OptionRenderers/OptionRenderer.h"
 "Visualizer/src/OptionRenderers/OptionRenderer.cpp"
 "Visualizer/include/OptionRenderers/AlgorithmRenderer.h"
@@ -46,7 +37,6 @@ add_executable(${PROJECT_NAME}
 "Visualizer/src/OptionRenderers/GraphRenderer.cpp"
 "Visualizer/src/global.cpp"
 "Visualizer/include/global.h"
-"Visualizer/src/visual_container.cpp"
 "Visualizer/include/visual_container.h")
 
 

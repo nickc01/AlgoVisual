@@ -1,19 +1,19 @@
-#include "OptionRenderers/OptionRenderer.h"
-#include "global.h"
-#include "imgui.h"
-#include "raylib.h"
-#include "raymath.h"
-#include "visual_container.h"
-#include <OptionRenderers/GraphRenderer.h>
-#include <array>
-#include <vector>
+#include "OptionRenderers/OptionRenderer.h" // Include header file for base class
+#include "global.h" // Include global variables
+#include "imgui.h" // Include ImGUI library
+#include "raylib.h" // Include Raylib library
+#include "raymath.h" // Include Raymath library
+#include "visual_container.h" // Include header file for visual container
+#include <OptionRenderers/GraphRenderer.h> // Include header file for GraphRenderer class
+#include <array> // Include header file for std::array
+#include <vector> // Include header file for std::vector
 
-namespace {
-    std::string _name = "Graph";
+namespace { // Anonymous namespace for internal linkage
+    std::string _name = "Graph"; // Name of the graph renderer
 }
 
-GraphRenderer::GraphRenderer() : OptionRenderer() {
-    createStarterList();
+GraphRenderer::GraphRenderer() : OptionRenderer() { // Constructor for GraphRenderer class
+    createStarterList(); // Create a starting list for the graph
 }
 
 
@@ -47,20 +47,16 @@ void GraphRenderer::update(double dt) {
 
         auto newMouseX = GetMouseX();
         auto newMouseY = GetMouseY();
-        //auto newMousePosition = transformPosition(GetMouseX(), GetMouseY());
          
         Vector2 mouseDelta{};
         mouseDelta.x = (newMouseX - mouseX) * scale;
         mouseDelta.y = (newMouseY - mouseY) * scale;
-        //auto mouseDelta = transformMouseDelta(newMouseX - mouseX, newMouseY - mouseY);
 
         if (movingNode && selectedNode != nullptr) {
-            //selectedNode->targetX = 
             selectedNode->targetX += mouseDelta.x;
             selectedNode->targetY += mouseDelta.y;
         }
 
-        //mousePosition = newMousePosition;
         mouseX = newMouseX;
         mouseY = newMouseY;
 
@@ -99,16 +95,7 @@ void GraphRenderer::render() {
             DrawCircle(circlePos.x, circlePos.y, (CIRCLE_SIZE + 10) / scale, BLACK);
         }
 
-        //DrawCircle(circlePos.x, circlePos.y, CIRCLE_SIZE / scale, RED);
         DrawTexture(getOrangeCircle(),circlePos,scale);
-        /*auto tex = getOrangeCircle();
-        Vector2 texturePos;
-        auto texScaleX = scale * (450 / CIRCLE_SIZE);
-        auto texScaleY = scale * (450 / CIRCLE_SIZE);
-        texturePos.x = circlePos.x - (tex.width / texScaleX / 2);
-        texturePos.y = circlePos.y - (tex.height / texScaleY / 2);
-        DrawTextureEx(tex, texturePos, 0, 1.0 / ((texScaleX + texScaleY) / 2.0), WHITE);*/
-        //DrawTexture(tex, circlePos.x - (tex.width / 2),circlePos.y - (tex.height / 2),WHITE);
 
         auto str = std::to_string(node.value);
 
@@ -157,9 +144,12 @@ void GraphRenderer::render() {
     }
 }
 
+// This function adds a new node with the specified value to the graph
 void GraphRenderer::push(float value) {
     numberGraph.add_node(visual_container<float>(value));
 }
+
+// This function removes the node with the specified value from the graph
 void GraphRenderer::pop(float value) {
     auto result = numberGraph.find_node_by([value](auto v){ return v.value == value;});
 
@@ -167,16 +157,14 @@ void GraphRenderer::pop(float value) {
         numberGraph.delete_node(result);
         return;
     }
-    /*for (auto i = numberGraph.begin(); i != numberGraph.end(); i++) {
-        if (i->value.value == selectedNode->value) {
-            numberGraph.delete_node(i);
-            return;
-        }
-    }*/
 }
+
+// This function clears the entire graph
 void GraphRenderer::clear() {
     numberGraph.clear();
 }
+
+// This function connects the currently selected node to a node with the specified value
 void GraphRenderer::connect(float value) {
     if (selectedNode == nullptr) {
         return;
@@ -189,6 +177,8 @@ void GraphRenderer::connect(float value) {
         sourceNode->add_connection_to(destination);
     }
 }
+
+// This function disconnects the currently selected node from a node with the specified value
 void GraphRenderer::disconnect(float value) {
     if (selectedNode == nullptr) {
         return;
@@ -202,10 +192,12 @@ void GraphRenderer::disconnect(float value) {
     }
 }
 
+// This function returns the name of the graph
 const std::string& GraphRenderer::getName() const {
     return _name;
 }
 
+//Creates a starter list for the graph
 void GraphRenderer::createStarterList() {
     constexpr std::array<float,11> numbersToAdd {5,1,2,11,15,0,4,3,9,2,13};
 
@@ -274,7 +266,6 @@ void GraphRenderer::onLoad(std::istream& inputStream) {
     int size;
     inputStream >> size;
     inputStream >> id;
-    //visual_container<float>*
     std::vector<graph<visual_container<float>>::iterator> graph_nodes{};
 
     for (int i = 0; i < size; i++) {

@@ -4,7 +4,7 @@
 #include <common.h>
 #include <functional>
 
-//Runs a insertion sort algorithm on the iterator range with the specified comparer
+//Runs a bubble sort algorithm on the iterator range with the specified comparer
 template<typename iteratorType, typename Comparer, typename Swapper = std::function<decltype(sorting_impl::DefaultSwapper<iteratorType>)>>
 void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer, Swapper swapper = sorting_impl::DefaultSwapper<iteratorType>)
 {
@@ -45,14 +45,14 @@ void bubble_sort(iteratorType&& begin, iteratorType&& end, Comparer&& comparer, 
 	}
 }
 
-//Runs a insertion sort algorithm on the iterator range
+//Runs a bubble sort algorithm on the iterator range
 template<typename iteratorType>
 void bubble_sort(iteratorType&& begin, iteratorType&& end)
 {
 	bubble_sort(std::forward<iteratorType>(begin), std::forward<iteratorType>(end), sorting_impl::DefaultComparer<decltype(*begin)>);
 }
 
-//Runs a insertion sort algorithm on the list
+//Runs a bubble sort algorithm on the list
 template<typename iteratable>
 void bubble_sort(iteratable& list)
 {

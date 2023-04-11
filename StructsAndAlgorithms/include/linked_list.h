@@ -7,12 +7,17 @@
 #include <functional>
 #include <utility>
 
+//Represents a list of items connected to each other via pointers
 template<typename T>
 class linked_list {
 public:
+	//Represents a node in the linked list
 	struct node {
+		//The value of the node
 		T value;
+		//A pointer to the next node
 		node* next;
+		//A pointer to the previous node
 		node* prev;
 
 		node(const T& val, node* nextPtr, node* prevPtr) :
@@ -34,6 +39,7 @@ public:
 		node() = default;
 	};
 
+	//Represents an iterator for iterating over all the nodes in a linked_list
 	template<bool is_const>
 	class node_iterator_base {
 
@@ -42,7 +48,9 @@ public:
 		using node_type = make_const_if_true<node, is_const>;
 		using list_type = make_const_if_true<linked_list<T>, is_const>;
 
+		//The node this iterator is currently accessing
 		node_type* _node;
+		//The list the node came from
 		list_type* _list;
 
 	public:
@@ -192,8 +200,11 @@ public:
 	using const_iterator = const_node_iterator;
 
 private:
+	//The first node in the linked list
 	node* first = nullptr;
+	//The last node in the linked list
 	node* last = nullptr;
+	//How many nodes are in the linked list
 	int size = 0;
 
 	//Inserts a new node. The node will be inserted before the "elementToInsertBefore" iterator
@@ -256,6 +267,7 @@ private:
 
 public:
 	linked_list() {}
+	//Constructs a linked list from a list of items
 	linked_list(std::initializer_list<T> list) {
 		for (auto& i : list)
 		{
@@ -298,6 +310,7 @@ public:
 		clear();
 	}
 
+	//Clears the linked list
 	void clear()
 	{
 		node* currentNode = first;
@@ -312,52 +325,60 @@ public:
 		size = 0;
 	}
 
+	//Gets an iterator to the first node
 	node_iterator begin() {
 		return node_iterator(first, this);
 	}
 
+	//Gets an iterator to the node after the last node
 	node_iterator end(){
 		return node_iterator(nullptr, this);
 	}
 
-
+	//Gets an iterator to the first node
 	const_node_iterator begin() const {
 		return const_node_iterator(first, this);
 	}
 
+	//Gets an iterator to the node after the last node
 	const_node_iterator end() const {
 		return const_node_iterator(nullptr, this);
 	}
 
-
+	//Gets an iterator to the first node
 	const_node_iterator cbegin() const {
 		return const_node_iterator(first, this);
 	}
 
+	//Gets an iterator to the node after the last node
 	const_node_iterator cend() const {
 		return const_node_iterator(nullptr, this);
 	}
 
-
+	//Gets an iterator to the first node
 	node_iterator front() {
 		return node_iterator(first, this);
 	}
 
+	//Gets an iterator to the first node
 	const_node_iterator front() const {
 		return const_node_iterator(first, this);
 	}
 
-
+	//Gets an iterator to the last node
 	node_iterator back() {
 		return node_iterator(last, this);
 	}
 
+	//Gets an iterator to the last node
 	const_node_iterator back() const {
 		return const_node_iterator(last, this);
 	}
 
+	//Adds a node to the front of the linked list
 	node_iterator push_front(const T& value)
 	{
+		//Construct the new node
 		node* newNode = new node(value, first, nullptr);
 		if (first != nullptr)
 		{
@@ -374,8 +395,10 @@ public:
 		return node_iterator(first, this);
 	}
 
+	//Adds a node to the front of the linked list
 	node_iterator push_front(T&& value)
 	{
+		//Construct the new node
 		node* newNode = new node(std::move(value), first, nullptr);
 		if (first != nullptr)
 		{
@@ -392,8 +415,10 @@ public:
 		return node_iterator(first, this);
 	}
 
+	//Adds a node to the back of the linked list
 	node_iterator push_back(const T& value)
 	{
+		//Construct the new node
 		node* newNode = new node(value, nullptr, last);
 		if (last != nullptr)
 		{
@@ -410,8 +435,10 @@ public:
 		return node_iterator(last, this);
 	}
 
+	//Adds a node to the back of the linked list
 	node_iterator push_back(T&& value)
 	{
+		//Construct the new node
 		node* newNode = new node(std::move(value), nullptr, last);
 		if (last != nullptr)
 		{
@@ -428,9 +455,11 @@ public:
 		return node_iterator(last, this);
 	}
 
+	//Constructs a new node to the front of the linked list
 	template<typename... Args>
 	node_iterator emplace_front(T&& arguments...)
 	{
+		//Construct the new node
 		node* newNode = new node(std::make_pair(first, nullptr), std::forward<Args>(arguments)...);
 		if (first != nullptr)
 		{
@@ -447,9 +476,11 @@ public:
 		return node_iterator(first, this);
 	}
 
+	//Constructs a new node to the back of the linked list
 	template<typename... Args>
 	node_iterator emplace_back(Args&& ...arguments)
 	{
+		//Construct the new node
 		node* newNode = new node(std::make_pair(nullptr, last), std::forward<Args>(arguments)...);
 		if (last != nullptr)
 		{
@@ -466,6 +497,7 @@ public:
 		return node_iterator(last, this);
 	}
 	
+	//Removes the first element from the linked list. Returns true if it was removed successfully
 	bool pop_front()
 	{
 		if (first != nullptr)
@@ -496,6 +528,7 @@ public:
 		return false;
 	}
 
+	//Removes the last element from the linked list. Returns true if it was removed successfully
 	bool pop_back()
 	{
 		if (last != nullptr)
@@ -525,6 +558,7 @@ public:
 		return false;
 	}
 
+	//Gets how many nodes are in the linked list
 	int getSize() const
 	{
 		return size;
@@ -628,8 +662,10 @@ public:
 		delete node;
 	}
 
+	//Finds a node with the specified value
 	const_node_iterator find(const T& value) const 
 	{
+		//Search the entire list for the specified value
 		for (auto i = begin(); i != end(); i++)
 		{
 			if (*i == value)
@@ -640,9 +676,10 @@ public:
 		return end();
 	}
 	
-
+	//Finds a node with the specified value
 	const_node_iterator find(T&& value) const
 	{
+		//Search the entire list for the specified value
 		for (auto i = begin(); i != end(); i++)
 		{
 			if (*i == value)
@@ -653,8 +690,10 @@ public:
 		return end();
 	}
 
+	//Finds a node with the specified value
 	node_iterator find(const T& value)
 	{
+		//Search the entire list for the specified value
 		for (auto i = begin(); i != end(); i++)
 		{
 			if (*i == value)
@@ -665,8 +704,10 @@ public:
 		return end();
 	}
 
+	//Finds a node with the specified value
 	node_iterator find(T&& value)
 	{
+		//Search the entire list for the specified value
 		for (auto i = begin(); i != end(); i++)
 		{
 			if (*i == value)
@@ -698,6 +739,7 @@ public:
 
 		return true;
 	}
+
 	//Tests for inequality
 	bool operator!=(const linked_list<T>& rhs) const
 	{
@@ -798,6 +840,7 @@ typename linked_list<T>::node_iterator minimum(linked_list<T>& list, Comparer& c
 	return minElement;
 }
 
+//Used for printing a linked_list to the console
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const linked_list<T> list) {
 	if (list.getSize() == 0) {

@@ -14,6 +14,7 @@ namespace sorting_impl
 		return a < b;
 	}
 
+	//The default swapper.
 	template<typename T>
 	constexpr void DefaultSwapper(T& lhs, T& rhs)
 	{
