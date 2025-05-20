@@ -301,6 +301,7 @@ public:
 		{
 			push_back(value);
 		}
+		return *this;
 	}
 
 	linked_list<T>& operator=(linked_list<T>&& move) = default;

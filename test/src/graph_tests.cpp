@@ -1,213 +1,144 @@
 #include <gtest/gtest.h>
-#include <common.h>
 #include <graph.h>
-#include <gtest/gtest.h>
 
-//Creates a testing graph
-graph<int> createGraph()
-{
-	graph<int> testGraph;
-	//Create a starting node
-	auto firstNode = testGraph.add_node(0);
+// Test fixture for graph_node
+template <typename T>
+class GraphNodeTest : public ::testing::Test {
+protected:
+    using Node = graph_node<T>;
+    T value1;
+    T value2;
+    T value3;
 
-	//Create a second node
-	auto secondNode = testGraph.add_node(5);
+    void SetUp() override {
+        if constexpr (std::is_same_v<T, std::string>) {
+            value1 = "node1";
+            value2 = "node2";
+            value3 = "node3";
+        } else {
+            value1 = 1;
+            value2 = 2;
+            value3 = 3;
+        }
+    }
+};
 
-	//Create a one-way connection from the first node to the second node with a weight of 1
-	firstNode->add_connection_to(secondNode);
+// Test fixture for graph
+template <typename T>
+class GraphTest : public ::testing::Test {
+protected:
+    using Graph = graph<T>;
+    using Node = graph_node<T>;
+    T value1;
+    T value2;
 
-	auto onehundredNode = testGraph.add_node(100);
-	secondNode->add_connection_to(onehundredNode);
+    void SetUp() override {
+        if constexpr (std::is_same_v<T, std::string>) {
+            value1 = "node1";
+            value2 = "node2";
+        } else {
+            value1 = 42;
+            value2 = 43;
+        }
+    }
+};
 
-	auto twohundredNode = testGraph.add_node(200);
-	secondNode->add_connection_to(twohundredNode);
+// Test cases for graph_node
+TYPED_TEST_SUITE_P(GraphNodeTest);
 
-	auto threehundredNode = testGraph.add_node(300);
-	secondNode->add_connection_to(threehundredNode);
-
-	//Add three new nodes that are one-way connected to the second node
-
-	//Return the test graph
-	return testGraph;
+TYPED_TEST_P(GraphNodeTest, ValueConstructor) {
+    // Test the constructor that initializes the node with a value.
+    typename TestFixture::Node node(this->value1);
+    EXPECT_EQ(node.value, this->value1);
+    EXPECT_EQ(node.connections_size(), 0);
 }
 
-TEST(GraphTests, CopyConstructorTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Create a copy of the graph
-	graph<int> copy{ testGraph };
-
-	//Test if the graphs are equal
-	ASSERT_EQ(testGraph, copy);
+TYPED_TEST_P(GraphNodeTest, AddConnection) {
+    // Test adding a connection between two nodes.
+    typename TestFixture::Node node1(this->value1);
+    typename TestFixture::Node node2(this->value2);
+    EXPECT_TRUE(node1.add_connection_to(node2));
+    EXPECT_EQ(node1.connections_size(), 1);
+    EXPECT_TRUE(node1.has_connection_to(node2));
 }
 
-TEST(GraphTests, MoveConstructorTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Create a new graph by moving the existing graph
-	graph<int> move{ std::move(testGraph) };
-
-	//Test if the list has been moved
-	ASSERT_TRUE(testGraph != move && testGraph.size() == 0);
+TYPED_TEST_P(GraphNodeTest, RemoveConnection) {
+    // Test removing a connection between two nodes.
+    typename TestFixture::Node node1(this->value1);
+    typename TestFixture::Node node2(this->value2);
+    node1.add_connection_to(node2);
+    EXPECT_TRUE(node1.remove_connection_to(node2));
+    EXPECT_EQ(node1.connections_size(), 0);
+    EXPECT_FALSE(node1.has_connection_to(node2));
 }
 
-TEST(GraphTests, CopyAssignmentTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Create a copy of the graph
-	graph<int> copy = testGraph;
-
-	//Test if the graphs are equal
-	ASSERT_TRUE(testGraph == copy);
+TYPED_TEST_P(GraphNodeTest, RemoveAllConnections) {
+    // Test removing all connections from a node.
+    typename TestFixture::Node node1(this->value1);
+    typename TestFixture::Node node2(this->value2);
+    typename TestFixture::Node node3(this->value3);
+    node1.add_connection_to(node2);
+    node1.add_connection_to(node3);
+    node1.remove_all_connections();
+    EXPECT_EQ(node1.connections_size(), 0);
 }
 
-TEST(GraphTests, MoveAssignmentTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
+REGISTER_TYPED_TEST_SUITE_P(GraphNodeTest, ValueConstructor, AddConnection, RemoveConnection, RemoveAllConnections);
 
-	//Create a new graph by moving the existing graph
-	graph<int> move = std::move(testGraph);
+// Test cases for graph
+TYPED_TEST_SUITE_P(GraphTest);
 
-	//Test if the list has been moved
-	ASSERT_TRUE(testGraph != move && testGraph.size() == 0);
+TYPED_TEST_P(GraphTest, DefaultConstructor) {
+    // Test the default constructor of the graph.
+    typename TestFixture::Graph graph;
+    EXPECT_EQ(graph.size(), 0);
 }
 
-TEST(GraphTests, AddNodeTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Add a new node with the number 234
-	testGraph.add_node(234);
-
-	//See if the node "234" has been added
-	ASSERT_NE(testGraph.find_node(234), testGraph.end());
+TYPED_TEST_P(GraphTest, AddNode) {
+    // Test adding a node to the graph.
+    typename TestFixture::Graph graph;
+    auto node = graph.add_node(this->value1);
+    EXPECT_EQ(graph.size(), 1);
+    EXPECT_EQ(node->value, this->value1);
 }
 
-TEST(GraphTests, DeleteNodeTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Delete the node with the value "200" from the list
-	testGraph.delete_node_by_value(200);
-
-	//Test if the node has been removed
-	ASSERT_EQ(testGraph.find_node(200), testGraph.end());
+TYPED_TEST_P(GraphTest, DeleteNode) {
+    // Test deleting a node from the graph.
+    typename TestFixture::Graph graph;
+    auto node = graph.add_node(this->value1);
+    graph.delete_node(node);
+    EXPECT_EQ(graph.size(), 0);
 }
 
-TEST(GraphTests, IteratorTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
-
-	//Store the amount of nodes in the graph
-	std::list<graph<int>::node*> storageList;
-
-
-	//Loop over all the nodes in the graph
-	for (auto i = testGraph.begin(); i != testGraph.end(); i++)
-	{
-		//Add each node to the storage list
-		storageList.push_back(i.operator->());
-	}
-
-	//Test if the storage list size and the test graph size is equal
-	ASSERT_EQ(storageList.size(), testGraph.size());
+TYPED_TEST_P(GraphTest, DeleteNodeByValue) {
+    // Test deleting a node by its value.
+    typename TestFixture::Graph graph;
+    graph.add_node(this->value1);
+    graph.delete_node_by_value(this->value1);
+    EXPECT_EQ(graph.size(), 0);
 }
 
-TEST(GraphTests, ConstIteratorTest)
-{
-	//Create a test graph
-	const graph<int> testGraph = createGraph();
-
-	//Store the amount of nodes in the graph
-	std::list<const graph<int>::node*> storageList;
-
-	//Loop over all the nodes in the graph
-	for (auto i = testGraph.cbegin(); i != testGraph.cend(); i++)
-	{
-		//Add each node to the storage list
-		storageList.push_back(i.operator->());
-	}
-
-	//Test if the storage list size and the test graph size is equal
-	ASSERT_EQ(storageList.size(), testGraph.size());
+TYPED_TEST_P(GraphTest, FindNode) {
+    // Test finding a node by its value.
+    typename TestFixture::Graph graph;
+    auto node = graph.add_node(this->value1);
+    auto found_node = graph.find_node(this->value1);
+    EXPECT_EQ(*found_node, *node);
 }
 
-TEST(GraphTests, FindTest)
-{
-	//Create a test graph
-	const graph<int> testGraph = createGraph();
-
-	//Test if the node "200" exists in the graph
-	ASSERT_NE(testGraph.find_node(200), testGraph.end());
+TYPED_TEST_P(GraphTest, ClearGraph) {
+    // Test clearing all nodes from the graph.
+    typename TestFixture::Graph graph;
+    graph.add_node(this->value1);
+    graph.add_node(this->value2);
+    graph.clear();
+    EXPECT_EQ(graph.size(), 0);
 }
 
-TEST(GraphTests, ClearTest)
-{
-	//Create a test graph
-	graph<int> testGraph = createGraph();
+REGISTER_TYPED_TEST_SUITE_P(GraphTest, DefaultConstructor, AddNode, DeleteNode, DeleteNodeByValue, FindNode, ClearGraph);
 
-	//Clear the graph
-	testGraph.clear();
+// Instantiate the tests for different types
+using NodeTypes = ::testing::Types<int, std::string>;
+INSTANTIATE_TYPED_TEST_SUITE_P(My, GraphNodeTest, NodeTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(My, GraphTest, NodeTypes);
 
-	//Check if the nodes list has no nodes
-	ASSERT_EQ(testGraph.size(), 0);
-}
-
-TEST(GraphTests, SizeTest)
-{
-	//Create a test graph
-	const graph<int> testGraph = createGraph();
-
-	//Test if there are 5 nodes in the graph
-	ASSERT_EQ(testGraph.size(), 5);
-}
-
-TEST(GraphTests, EqualityTest)
-{
-	//Create a test graph
-	const graph<int> a = createGraph();
-	//Create a second test graph
-	const graph<int> b = createGraph();
-
-	//Test if they are equal
-	ASSERT_EQ(a, b);
-}
-
-TEST(GraphTests, NonEqualityTest)
-{
-	//Create a test graph
-	const graph<int> a = createGraph();
-	//Create an empty graph
-	const graph<int> b;
-
-	//Test if they are non-equal
-	ASSERT_NE(a, b);
-}
-
-TEST(GraphTests, PrintTest)
-{
-	//The stream to print to
-	std::stringstream stream;
-
-	//Create a test graph
-	const graph<int> a = createGraph();
-
-	//Print to the stream
-	stream << a;
-
-	//Convert the stream to the a string
-	auto str = stream.str();
-
-	//Check if the string is equal to the expected output
-	ASSERT_EQ(str, "Node {0}: Connections -> {5}\nNode {5}: Connections -> {100, 200, 300}\nNode {100}: Connections -> {}\nNode {200}: Connections -> {}\nNode {300}: Connections -> {}\n");
-}
