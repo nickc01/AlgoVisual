@@ -18,7 +18,10 @@ add_library(StructsAndAlgorithms
 "StructsAndAlgorithms/src/common.cpp" 
 "StructsAndAlgorithms/include/graph.h"
 "StructsAndAlgorithms/include/struct_exception.h"
-"StructsAndAlgorithms/src/struct_exception.cpp"  "StructsAndAlgorithms/include/insertion_sort.h" "StructsAndAlgorithms/include/merge_sort.h" "StructsAndAlgorithms/include/bubble_sort.h" "StructsAndAlgorithms/include/quick_sort.h" "StructsAndAlgorithms/include/heap_sort.h")
+"StructsAndAlgorithms/src/struct_exception.cpp"
+
+"StructsAndAlgorithms/include/insertion_sort.h"
+"StructsAndAlgorithms/include/merge_sort.h" "StructsAndAlgorithms/include/bubble_sort.h" "StructsAndAlgorithms/include/quick_sort.h" "StructsAndAlgorithms/include/heap_sort.h")
 
 target_include_directories(StructsAndAlgorithms PUBLIC "StructsAndAlgorithms/include")
 set_target_properties(StructsAndAlgorithms PROPERTIES LINKER_LANGUAGE CXX)
@@ -72,7 +75,10 @@ add_executable(AlgoTests
 "test/src/linked_list_tests.cpp"
 "test/src/binary_search_tree_tests.cpp" 
 "test/src/graph_tests.cpp"
-"test/src/algorithm_tests.cpp")
+"test/src/algorithm_tests.cpp"
+"test/src/merge_sort_tests.cpp"
+# "test/src/test_merge_sort.cpp"
+)
 
 target_link_libraries(AlgoTests PRIVATE GTEST::GTEST StructsAndAlgorithms)
 

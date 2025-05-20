@@ -280,11 +280,13 @@ public:
 	{
 		//Make a copy of the nodes list
 		nodes = toCopy.nodes;
+		return *this;
 	}
 	graph<T>& operator=(graph<T>&& toMove)
 	{
 		//Move the nodes list to this graph
 		nodes = std::move(toMove.nodes);
+		return *this;
 	}
 
 	//The equality operator
